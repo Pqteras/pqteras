@@ -22,7 +22,7 @@ function App() {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (isInside) return;
+      if (isInside || window.innerWidth < 768) return;
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
       const x = e.clientX - centerX;
@@ -50,7 +50,7 @@ function App() {
         onMouseEnter={() => setIsInside(true)} 
         onMouseLeave={() => setIsInside(false)}
       >
-        <header className='self-start'>
+        <header className={`self-start`}>
           <h1>Hey, I'm <span className='cursor-grab text-yellow-300 hover:text-yellow-200 duration-300'>Theocharis</span></h1>
           <Status />
         </header>
