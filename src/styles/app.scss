@@ -1,0 +1,30 @@
+.main-container {
+    width: 700px;
+    // height: 500px;
+    padding: 25px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: baseline;
+    align-items: center;
+    background-color: #191919;
+    border-radius: 15px;
+
+    box-shadow: 5px 6px 10px 3px rgba(0,0,0,0.56);
+    -webkit-box-shadow: 5px 6px 10px 3px rgba(0,0,0,0.56);
+    -moz-box-shadow: 5px 6px 10px 3px rgba(0,0,0,0.56);
+    
+    header {
+        display: flex;
+        gap: 20px;
+    }
+
+    h1 {
+        font-size: 2.3rem;
+        font-weight: 700;
+    }
+
+    p {
+        text-align: left;
+    }
+}
