@@ -4,7 +4,7 @@ import Section from './components/Section'
 import Links from './components/Links'
 import SocialIcons from './components/SocialIcons'
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { Analytics } from '@vercel/analytics'
+import Analytics from '@vercel/analytics'
 import './styles/app.scss'
 
 function myAge() {
