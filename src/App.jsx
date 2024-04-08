@@ -49,7 +49,7 @@ function App() {
         onMouseLeave={() => setIsInside(false)}
       >
         <motion.header className={`self-start`} variants={titleVariants}>
-          <h1>Hey, I'm <span className='cursor-grab text-yellow-300 hover:text-yellow-200 duration-300'>Theocharis</span></h1>
+          <h1>Hey, I'm <span className='cursor-grab text-yellow-300 hover:text-yellow-400 duration-300'>Theocharis</span></h1>
           <Status />
         </motion.header>
         <motion.div className={`self-start justify-between w-full`} variants={contentVariants} initial="hidden" animate="visible" custom={0}>
