@@ -1,3 +1,4 @@
+"use client";
 import { FaLinkedin, FaGithub, FaInstagram, FaDiscord } from "react-icons/fa";
 
 const SocialIcons = () => {
