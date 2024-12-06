@@ -11,8 +11,8 @@ export default function HomeLayout() {
         </h3>
         <p className="text-sm md:text-base">
           Greetings! My name is Theocharis Pasvantis, a computer science
-          enthusiast studying in Lamia, Greece. I’m {getAge()} years old and
-          love diving into the exciting world of technology. I’m always eager to
+          enthusiast studying in Lamia, Greece. I&apos;m {getAge()} years old and
+          love diving into the exciting world of technology. I&apos;m always eager to
           learn new things, explore cool ideas, and grow my skills along the
           way!
         </p>
@@ -22,7 +22,7 @@ export default function HomeLayout() {
           Hobbies
         </h3>
         <p className="text-sm md:text-base">
-          Alongside my computer science studies, I'm deeply involved in hobbies
+          Alongside my computer science studies, I&apos;m deeply involved in hobbies
           like table tennis, video gaming, and fitness, which perfectly balance
           my passion for coding. I believe that combining work with personal
           interests creates a well-rounded and enjoyable life.
@@ -35,14 +35,14 @@ export default function HomeLayout() {
         <p className="text-sm md:text-base">
           My coding journey started with JavaScript and TypeScript, driven by
           Discord projects using{" "}
-          <Links text="discord.js" href="https://discord.js.org/" />. I’ve built
+          <Links text="discord.js" href="https://discord.js.org/" />. I&apos;ve built
           a strong foundation in HTML and CSS and evolved into a skilled{" "}
-          <Links text="React" href="https://reactjs.org/" /> developer. I’m
+          <Links text="React" href="https://reactjs.org/" /> developer. I&apos;m
           proficient in frameworks like{" "}
           <Links text="Vite" href="https://vitejs.dev/" />,{" "}
           <Links text="Next.js" href="https://nextjs.org/" />, and have hands-on
           experience with{" "}
-          <Links text="Electron.js" href="https://www.electronjs.org/" />. I’m
+          <Links text="Electron.js" href="https://www.electronjs.org/" />. I&apos;m
           always eager to grow and improve.
         </p>
       </div>

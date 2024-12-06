@@ -47,7 +47,7 @@ export default function Home() {
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-evenly w-full gap-4">
             <h1 className="font-bold select-none text-3xl md:text-4xl w-full text-nowrap items-center">
-              Hey, I'm{" "}
+              Hey, I&apos;m{" "}
               <span className="cursor-grab text-yellow-300 hover:text-yellow-400 duration-300">
                 Theocharis
               </span>

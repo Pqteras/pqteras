@@ -1,6 +1,6 @@
 // Tabs.tsx
 "use client";
-import { SetStateAction, useState } from "react";
+import { SetStateAction } from "react";
 import { FaHome } from "react-icons/fa";
 import { IoSparkles } from "react-icons/io5";
 import "./Tabs.scss";
