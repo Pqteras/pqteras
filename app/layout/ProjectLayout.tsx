@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useSwipeable } from "react-swipeable";
 import { projects } from "../utils/projectData";
@@ -21,6 +21,13 @@ const ProjectLayout = () => {
   >(null);
   const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isExpanded && descriptionRef.current) {
+      descriptionRef.current.scrollTop = 0;
+    }
+  }, [isExpanded]);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => handleNext(),
@@ -128,7 +135,7 @@ const ProjectLayout = () => {
             animate="center"
             exit="exit"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="p-4"
+            className="p-4 h-full flex flex-col"
           >
             <div className="flex items-start justify-between mb-2">
               <h4
@@ -176,27 +183,39 @@ const ProjectLayout = () => {
             </div>
 
             {currentProject.description && (
-              <div className="relative mb-4">
+              <div className="relative flex-1 min-h-0 mb-3 group">
                 <motion.div
-                  animate={{ height: isExpanded ? "auto" : "4.25rem" }}
-                  className={`text-white/60 text-sm leading-relaxed overflow-hidden ${
-                    !isExpanded ? "line-clamp-4" : ""
+                  ref={descriptionRef}
+                  className={`text-white/60 text-sm leading-relaxed ${
+                    isExpanded
+                      ? "h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20"
+                      : "line-clamp-4 overflow-hidden"
                   }`}
                 >
                   {currentProject.description}
                 </motion.div>
-                {currentProject.description.length > 150 && (
+                {currentProject.description.length > 150 && !isExpanded && (
+                  <div className="absolute bottom-0 right-0 bg-linear-to-l from-surface-light pl-8 pt-4">
+                    <button
+                      onClick={() => setIsExpanded(true)}
+                      className="text-xs font-medium text-yellow-300 hover:text-yellow-400 hover:underline focus:outline-none bg-surface-light/80 backdrop-blur-sm px-2 py-0.5 rounded-md"
+                    >
+                      Read More
+                    </button>
+                  </div>
+                )}
+                {isExpanded && (
                   <button
-                    onClick={() => setIsExpanded(!isExpanded)}
-                    className="mt-1 text-xs font-medium text-yellow-300 hover:text-yellow-400 hover:underline focus:outline-none"
+                    onClick={() => setIsExpanded(false)}
+                    className="absolute bottom-2 right-2 text-xs font-medium text-yellow-300 hover:text-yellow-400 hover:underline focus:outline-none bg-black/50 backdrop-blur-md px-2 py-1 rounded-md shadow-lg z-10"
                   >
-                    {isExpanded ? "Read Less" : "Read More"}
+                    Close
                   </button>
                 )}
               </div>
             )}
 
-            <div className="flex items-center gap-2 pt-3 border-t border-white/5">
+            <div className="flex items-center gap-2 pt-3 border-t border-white/5 flex-none mt-auto">
               <span className="text-xs text-white/40 uppercase tracking-wider font-medium">
                 Stack
               </span>
