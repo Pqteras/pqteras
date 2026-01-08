@@ -1,13 +1,24 @@
 "use client";
-export default function Link({ href, text }: { href: string; text: string }) {
+
+import { motion } from "motion/react";
+
+interface LinksProps {
+  href: string;
+  text: string;
+}
+
+const Links = ({ href, text }: LinksProps) => {
   return (
-    <a
+    <motion.a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:text-yellow-300 transition-colors duration-200 underline"
+      whileHover={{ scale: 1.02 }}
+      className="relative inline-block text-yellow-300 font-medium hover:text-yellow-400 transition-colors duration-200 underline underline-offset-2 decoration-yellow-300/50 hover:decoration-yellow-400"
     >
-        {text}
-    </a>
+      {text}
+    </motion.a>
   );
-}
+};
+
+export default Links;

@@ -1,71 +1,130 @@
 "use client";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+
 import { useEffect, useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useSpring,
+} from "motion/react";
 import Status from "./components/Status/Status";
 import Tabs from "./components/Tabs/Tabs";
 import SocialIcons from "./components/SocialIcons/SocialIcons";
 import HomeLayout from "./layout/HomeLayout";
 import ProjectLayout from "./layout/ProjectLayout";
 
-export default function Home() {
+const Home = () => {
   const [selectedTab, setSelectedTab] = useState("home");
-  const isInsideRef = useRef(false);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  const [isClient, setIsClient] = useState(false);
+  const glowRef = useRef<HTMLDivElement>(null);
 
-  const springConfig = { stiffness: 100, damping: 10 };
-  const xSpring = useSpring(x, springConfig);
-  const ySpring = useSpring(y, springConfig);
+  const cursorX = useMotionValue(0);
+  const cursorY = useMotionValue(0);
+  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
+  const springX = useSpring(cursorX, springConfig);
+  const springY = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    const handleMouseMove = (e: { clientX: number; clientY: number }) => {
-      if (isInsideRef.current || window.innerWidth < 768) return;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const newX = (e.clientX - centerX) * 0.035;
-      const newY = (e.clientY - centerY) * 0.025;
-      x.set(newX);
-      y.set(newY);
+    setIsClient(true);
+    if (typeof window !== "undefined") {
+      cursorX.set(window.innerWidth / 2);
+      cursorY.set(window.innerHeight / 2);
+    }
+  }, [cursorX, cursorY]);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth < 768) return;
+
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
+
+      if (glowRef.current) {
+        glowRef.current.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(253, 224, 71, 0.06), transparent 40%)`;
+      }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [x, y]);
+  }, [isClient, cursorX, cursorY]);
 
   return (
     <>
-      <motion.div className="mb-20 md:mb-0 max-w-[800px] m-auto min-h-screen lg:p-10 p-4 flex items-center justify-center">
+      <div
+        ref={glowRef}
+        className="fixed inset-0 pointer-events-none z-0 hidden md:block"
+      />
+
+      {isClient && (
         <motion.div
-          onMouseEnter={() => (isInsideRef.current = true)}
-          onMouseLeave={() => (isInsideRef.current = false)}
+          className="fixed w-3 h-3 rounded-full bg-yellow-300/70 pointer-events-none z-50 hidden md:block shadow-lg shadow-yellow-300/30"
           style={{
-            x: xSpring,
-            y: ySpring,
-            boxShadow: "2px 5px 5px rgba(253, 224, 71, 0.69)",
+            left: springX,
+            top: springY,
+            x: "-50%",
+            y: "-50%",
           }}
-          className="flex flex-col gap-2 items-center justify-between p-6 md:p-8 bg-[#191919] rounded-xl"
+        />
+      )}
+
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 md:px-6 md:py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          className="w-full max-w-2xl mb-24"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-evenly w-full gap-4">
-            <h1 className="font-bold select-none text-3xl md:text-4xl w-full text-nowrap items-center">
-              Hey, I&apos;m{" "}
-              <span className="cursor-grab text-yellow-300 hover:text-yellow-400 duration-300">
-                Theocharis
-              </span>
-            </h1>
-            <hr className="hidden md:block w-full border border-yellow-400 rounded-lg min-w-10" />
-            <Status />
-          </div>
-          <div className="flex self-start w-full items-center space-x-2 mt-1.5 justify-between text-sm md:text-base">
-            <p className="self-start">A wannabe Software Developer</p>
-            <SocialIcons />
-          </div>
-          {selectedTab === "home" ? <HomeLayout /> : <ProjectLayout />}
+          <motion.div
+            layout
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className="relative p-5 md:p-6 rounded-xl bg-[#191919] border border-white/5 shadow-lg shadow-yellow-400/5 overflow-hidden"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-white/50 text-sm mb-1">Hello, I&apos;m</p>
+                <h1 className="text-2xl md:text-4xl font-bold text-white">
+                  <span className="text-yellow-300 hover:text-yellow-400 transition-colors duration-300 cursor-default">
+                    Theocharis
+                  </span>
+                </h1>
+              </div>
+              <Status />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
+              <p className="text-white/60 text-sm">
+                A wannabe Software Developer
+              </p>
+              <SocialIcons />
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {selectedTab === "home" ? <HomeLayout /> : <ProjectLayout />}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </motion.div>
-      </motion.div>
-      {/* Hub Buttons (Radio Buttons styling) */}
-      <div className="w-max fixed bottom-2 md:bottom-8 left-1/2 transform -translate-x-1/2">
-        <Tabs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2"
+        >
+          <Tabs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+        </motion.div>
       </div>
     </>
   );
-}
+};
+
+export default Home;
