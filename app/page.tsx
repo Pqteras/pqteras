@@ -79,12 +79,12 @@ const Home = () => {
           <motion.div
             layout
             transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className="relative p-5 md:p-6 rounded-xl bg-[#191919] border border-white/5 shadow-lg shadow-yellow-400/5 overflow-hidden"
+            className="relative p-5 md:p-6 rounded-xl bg-surface border border-white/5 shadow-lg shadow-yellow-400/5 overflow-hidden"
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex flex-row items-center sm:items-center justify-between gap-3">
               <div>
                 <p className="text-white/50 text-sm mb-1">Hello, I&apos;m</p>
-                <h1 className="text-2xl md:text-4xl font-bold text-white">
+                <h1 className="text-3xl md:text-4xl font-bold text-white">
                   <span className="text-yellow-300 hover:text-yellow-400 transition-colors duration-300 cursor-default">
                     Theocharis
                   </span>
