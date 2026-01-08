@@ -3,7 +3,8 @@
 import { motion, Variants } from "motion/react";
 import Links from "@/app/components/Links/Links";
 import { getAge } from "@/app/utils/helpers";
-import { FaCode, FaGamepad, FaGraduationCap } from "react-icons/fa";
+import { FaCode, FaGraduationCap } from "react-icons/fa";
+import { FaDumbbell } from "react-icons/fa6";
 
 const sections = [
   {
@@ -20,14 +21,16 @@ const sections = [
     ),
   },
   {
-    icon: FaGamepad,
+    icon: FaDumbbell,
     title: "Hobbies",
     content: (
       <>
-        Alongside my computer science studies, I&apos;m deeply involved in
-        hobbies like table tennis, video gaming, and fitness, which perfectly
-        balance my passion for coding. I believe that combining work with
-        personal interests creates a well-rounded and enjoyable life.
+        Alongside my computer science studies, I train at the gym regularly and
+        take fitness seriously, it keeps my routine disciplined and my head
+        clear. I&apos;m also very good at table tennis and enjoy the
+        competitive, fast-paced nature of the game. When I want to unwind,
+        I&apos;ll play video games, but overall I like keeping a balance between
+        building software and staying active.
       </>
     ),
   },
@@ -38,12 +41,12 @@ const sections = [
       <>
         My coding journey started with JavaScript and TypeScript, driven by
         Discord projects using{" "}
-        <Links text="discord.js" href="https://discord.js.org/" />. I&apos;ve
-        built a strong foundation in HTML and CSS and evolved into a skilled{" "}
-        <Links text="React" href="https://reactjs.org/" /> developer. I&apos;m
-        proficient in frameworks like{" "}
-        <Links text="Vite" href="https://vitejs.dev/" />,{" "}
-        <Links text="Next.js" href="https://nextjs.org/" />, and have hands-on
+        <Links text="discord.js" href="https://discord.js.org/" />. Over time, I
+        built a strong foundation in HTML and CSS and became comfortable working
+        with <Links text="React" href="https://reactjs.org/" />. Today, I’m very
+        strong with <Links text="Next.js" href="https://nextjs.org/" />,
+        building full-stack applications with modern routing patterns, server
+        components, and production-ready architecture. I also have hands-on
         experience with{" "}
         <Links text="Electron.js" href="https://www.electronjs.org/" />.
       </>
@@ -86,7 +89,7 @@ const HomeLayout = () => {
         <motion.div
           key={section.title}
           variants={itemVariants}
-          className="group p-4 rounded-lg bg-[#151515] border border-white/5 hover:border-yellow-400/20 transition-all duration-300"
+          className="group p-4 rounded-lg bg-surface-light border border-white/5 hover:border-yellow-400/20 transition-all duration-300"
         >
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-md bg-yellow-400/10 text-yellow-300">

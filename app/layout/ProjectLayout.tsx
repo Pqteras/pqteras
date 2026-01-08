@@ -9,11 +9,18 @@ import {
   FaGithub,
   FaChevronLeft,
   FaChevronRight,
+  FaImages,
+  FaTimes,
 } from "react-icons/fa";
 
 const ProjectLayout = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [selectedScreenshots, setSelectedScreenshots] = useState<
+    string[] | null
+  >(null);
+  const [activeScreenshotIndex, setActiveScreenshotIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => handleNext(),
@@ -25,6 +32,7 @@ const ProjectLayout = () => {
     if (currentIndex < projects.length - 1) {
       setDirection(1);
       setCurrentIndex(currentIndex + 1);
+      setIsExpanded(false);
     }
   };
 
@@ -32,7 +40,31 @@ const ProjectLayout = () => {
     if (currentIndex > 0) {
       setDirection(-1);
       setCurrentIndex(currentIndex - 1);
+      setIsExpanded(false);
     }
+  };
+
+  const handleNextScreenshot = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedScreenshots) {
+      setActiveScreenshotIndex((prev) =>
+        prev < selectedScreenshots.length - 1 ? prev + 1 : 0
+      );
+    }
+  };
+
+  const handlePrevScreenshot = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (selectedScreenshots) {
+      setActiveScreenshotIndex((prev) =>
+        prev > 0 ? prev - 1 : selectedScreenshots.length - 1
+      );
+    }
+  };
+
+  const openGallery = (screenshots: string[]) => {
+    setSelectedScreenshots(screenshots);
+    setActiveScreenshotIndex(0);
   };
 
   const slideVariants = {
@@ -67,18 +99,18 @@ const ProjectLayout = () => {
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className="p-2 rounded-md bg-[#151515] border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+            className="p-2 rounded-md bg-surface-light border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
             aria-label="Previous project"
           >
             <FaChevronLeft size={12} />
           </button>
-          <span className="text-xs text-white/50 min-w-[2.5rem] text-center font-medium">
+          <span className="text-xs text-white/50 min-w-10 text-center font-medium">
             {currentIndex + 1} / {projects.length}
           </span>
           <button
             onClick={handleNext}
             disabled={currentIndex === projects.length - 1}
-            className="p-2 rounded-md bg-[#151515] border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
+            className="p-2 rounded-md bg-surface-light border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
             aria-label="Next project"
           >
             <FaChevronRight size={12} />
@@ -86,7 +118,7 @@ const ProjectLayout = () => {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-lg min-h-[200px]">
+      <div className="relative overflow-hidden rounded-lg h-60 bg-surface-light border border-white/5">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentIndex}
@@ -96,10 +128,16 @@ const ProjectLayout = () => {
             animate="center"
             exit="exit"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="p-4 rounded-lg bg-[#151515] border border-white/5"
+            className="p-4"
           >
-            <div className="flex items-start justify-between mb-3">
-              <h4 className="text-lg font-semibold text-white">
+            <div className="flex items-start justify-between mb-2">
+              <h4
+                className={`text-lg font-semibold ${
+                  currentProject.title_color
+                    ? currentProject.title_color
+                    : "text-white"
+                }`}
+              >
                 {currentProject.name}
               </h4>
               <div className="flex items-center gap-1.5">
@@ -125,13 +163,37 @@ const ProjectLayout = () => {
                     <FaExternalLinkAlt size={12} />
                   </a>
                 )}
+                {currentProject.screenshots && (
+                  <button
+                    onClick={() => openGallery(currentProject.screenshots!)}
+                    className="p-2 rounded-md bg-blue-400/10 border border-blue-400/30 text-blue-300 hover:bg-blue-400/20 transition-all duration-300"
+                    aria-label="View screenshots"
+                  >
+                    <FaImages size={12} />
+                  </button>
+                )}
               </div>
             </div>
 
             {currentProject.description && (
-              <p className="text-white/60 text-sm leading-relaxed mb-4">
-                {currentProject.description}
-              </p>
+              <div className="relative mb-4">
+                <motion.div
+                  animate={{ height: isExpanded ? "auto" : "4.25rem" }}
+                  className={`text-white/60 text-sm leading-relaxed overflow-hidden ${
+                    !isExpanded ? "line-clamp-4" : ""
+                  }`}
+                >
+                  {currentProject.description}
+                </motion.div>
+                {currentProject.description.length > 150 && (
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="mt-1 text-xs font-medium text-yellow-300 hover:text-yellow-400 hover:underline focus:outline-none"
+                  >
+                    {isExpanded ? "Read Less" : "Read More"}
+                  </button>
+                )}
+              </div>
             )}
 
             <div className="flex items-center gap-2 pt-3 border-t border-white/5">
@@ -163,6 +225,7 @@ const ProjectLayout = () => {
             onClick={() => {
               setDirection(index > currentIndex ? 1 : -1);
               setCurrentIndex(index);
+              setIsExpanded(false);
             }}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               index === currentIndex
@@ -173,6 +236,86 @@ const ProjectLayout = () => {
           />
         ))}
       </div>
+
+      <AnimatePresence>
+        {selectedScreenshots && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-100 flex items-center justify-center bg-black/95 backdrop-blur-md"
+            onClick={() => setSelectedScreenshots(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              className="relative w-full h-full flex flex-col items-center justify-center p-4 md:p-8"
+            >
+              <button
+                onClick={() => setSelectedScreenshots(null)}
+                className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors z-50 backdrop-blur-sm"
+              >
+                <FaTimes size={24} />
+              </button>
+
+              <div className="relative w-full max-w-6xl flex-1 flex items-center justify-center rounded-2xl overflow-hidden mb-4">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <AnimatePresence mode="wait">
+                    <motion.img
+                      key={activeScreenshotIndex}
+                      src={selectedScreenshots[activeScreenshotIndex]}
+                      alt={`Screenshot ${activeScreenshotIndex + 1}`}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                    />
+                  </AnimatePresence>
+                </div>
+
+                {selectedScreenshots.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevScreenshot}
+                      className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-sm transition-all border border-white/10"
+                    >
+                      <FaChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={handleNextScreenshot}
+                      className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-sm transition-all border border-white/10"
+                    >
+                      <FaChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {selectedScreenshots.length > 1 && (
+                <div className="flex gap-2 mt-4 overflow-x-auto max-w-full p-2">
+                  {selectedScreenshots.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveScreenshotIndex(idx);
+                      }}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        idx === activeScreenshotIndex
+                          ? "w-8 bg-white"
+                          : "w-2 bg-white/30 hover:bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

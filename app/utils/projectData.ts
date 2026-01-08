@@ -1,10 +1,12 @@
 // Purpose: Store project data to be used in the Projects component.
 
 interface Project {
+  title_color?: string; // With tailwind written classes (Example: indigo-500)
   url?: string;
   github_url?: string;
   name: string;
   description?: string;
+  screenshots?: string[];
   techStack: string[];
 }
 
@@ -33,6 +35,7 @@ const techStack = {
 
 export const projects: Project[] = [
   {
+    title_color: "text-orange-700",
     url: `https://www.lawnetwork.eu`,
     name: `LawNetwork`,
     description: `Official Website for the LawNetwork organization.`,
@@ -45,6 +48,35 @@ export const projects: Project[] = [
     ],
   },
   {
+    title_color: "text-emerald-500",
+    name: `DermaPad`,
+    description: `Private patient management system built for my mother’s dermatology clinic. It supports appointment scheduling, detailed procedure documentation, and full patient history tracking. The app also generates analytics and statistics on visits and patient trends, including clear yearly charts to help the clinic understand performance over time.`,
+    techStack: [techStack.ElectronJS, techStack.TailwindCSS, techStack.TypeScript, techStack.Vite, techStack.MongoDB],
+    screenshots: [
+      "/projects/dermapad/dermapad_showcase.png",
+    ],
+  },
+  {
+    title_color: "text-yellow-500",
+    url: 'https://discord.com/channels/1339953444588490844/1339960283057356911/1456659654489931827',
+    name: `ForFeit.GG`,
+    description: `League of Legends statistics platform delivering deep match history analytics, champion meta insights, and player progression tracking. Features include leaderboard/ranked ladder tracking, LP progression charts over time, role and champion performance breakdowns, tier lists per patch, and build/rune recommendations based on real data. (Project discontinued due to financial issues.)`,
+    techStack: [
+      techStack.NextJS,
+      techStack.TypeScript,
+      techStack.TailwindCSS,
+      techStack.MongoDB,
+    ],
+    screenshots: [
+      "/projects/forfeitgg/forfeitgg_showcase_1.png",
+      "/projects/forfeitgg/forfeitgg_showcase_2.png",
+      "/projects/forfeitgg/forfeitgg_showcase_3.png",
+      "/projects/forfeitgg/forfeitgg_showcase_4.png",
+      "/projects/forfeitgg/forfeitgg_showcase_5.png",
+    ],
+  },
+  {
+    title_color: "text-red-500",
     url: `https://www.lamiuth.com/`,
     name: `LamiUTH`,
     description: `A project for the University of Thessaly, Department of Informatics & Telecommunications, designed to provide students with course information, real-time bus tracking, and a custom Discord Bot for essential services, all seamlessly integrated through a robust API that powers both the website and bot functionalities.`,
@@ -57,6 +89,7 @@ export const projects: Project[] = [
     ],
   },
   {
+    title_color: "text-blue-500",
     url: `https://discordstamps.vercel.app/`,
     github_url: `https://github.com/Pqteras/discord-timestamps`,
     name: `DiscordStamps`,
@@ -70,6 +103,7 @@ export const projects: Project[] = [
     ],
   },
   {
+    title_color: "text-amber-500",
     github_url: `https://github.com/Pqteras/superenchants`,
     name: `SuperEnchants`,
     description: `Minecraft Mod that adds the ability to make a super enchantment out of the already existing ones.`,
