@@ -1,9 +1,9 @@
-// Purpose: Store project data to be used in the Projects component.
+// Purpose: Store work portfolio data for the Work tab / WorkLayout.
 
-interface Project {
-  title_color?: string; // With tailwind written classes (Example: indigo-500)
-  /** Square project mark — shown in the card; falls back to initials when omitted */
+interface WorkItem {
+  title_color?: string;
   logo?: string;
+  invert_logo?: boolean;
   url?: string;
   github_url?: string;
   name: string;
@@ -35,9 +35,11 @@ const techStack = {
     "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/electron/electron-original.svg",
 };
 
-export const projects: Project[] = [
+export const workItems: WorkItem[] = [
   {
-    title_color: "text-orange-700",
+    logo: "/project-logos/lawnetwork-logo.png",
+    invert_logo: true,
+    title_color: "text-orange-400",
     url: `https://www.lawnetwork.eu`,
     name: `LawNetwork`,
     description: `Official Website for the LawNetwork organization.`,
@@ -50,8 +52,8 @@ export const projects: Project[] = [
     ],
   },
   {
-    title_color: "text-emerald-500",
-    logo: "/projects/dermapad/dermapad1.jpg",
+    logo: "/project-logos/dermapad-logo.png",
+    title_color: "text-indigo-400",
     name: `DermaPad`,
     description: `Private patient management system built for my mother’s dermatology clinic. It supports appointment scheduling, detailed procedure documentation, and full patient history tracking. The app also generates analytics and statistics on visits and patient trends, including clear yearly charts to help the clinic understand performance over time.`,
     techStack: [techStack.ElectronJS, techStack.TailwindCSS, techStack.TypeScript, techStack.Vite, techStack.MongoDB],
@@ -62,6 +64,7 @@ export const projects: Project[] = [
     ],
   },
   {
+    logo: "/project-logos/forfeitgg-logo.png",
     title_color: "text-yellow-500",
     url: 'https://discord.com/channels/1339953444588490844/1339960283057356911/1456659654489931827',
     name: `ForFeit.GG`,
@@ -81,6 +84,7 @@ export const projects: Project[] = [
     ],
   },
   {
+    logo: "/project-logos/lamiuth-logo.png",
     title_color: "text-red-500",
     url: `https://www.lamiuth.com/`,
     name: `LamiUTH`,
@@ -94,6 +98,7 @@ export const projects: Project[] = [
     ],
   },
   {
+    logo: "/project-logos/discordstamps-logo.svg",
     title_color: "text-blue-500",
     url: `https://discordstamps.vercel.app/`,
     github_url: `https://github.com/Pqteras/discord-timestamps`,

@@ -1,9 +1,26 @@
 "use client";
 
 import { useLanyard } from "react-use-lanyard";
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 
-const Status = () => {
+type StatusProps = {
+  isIntroReady?: boolean;
+};
+
+const statusVariants: Variants = {
+  hidden: { opacity: 0, y: 8, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const Status = ({ isIntroReady = true }: StatusProps) => {
   const { status } = useLanyard({
     userId: "303804858744700929",
     socket: true,
@@ -13,8 +30,9 @@ const Status = () => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      variants={statusVariants}
+      initial="hidden"
+      animate={isIntroReady ? "visible" : "hidden"}
       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-light border border-white/10"
     >
       <span className="relative grid h-2.5 w-2.5 place-items-center">

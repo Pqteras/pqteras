@@ -13,7 +13,8 @@ const sections = [
     content: (
       <>
         Greetings! My name is Theocharis Pasvantis, a computer science
-        enthusiast studying in Lamia, Greece. I&apos;m {getAge()} years old and
+        enthusiast studying in Lamia, Greece. I&apos;m{" "}
+        {`${getAge()} years old and `}
         love diving into the exciting world of technology. I&apos;m always eager
         to learn new things, explore cool ideas, and grow my skills along the
         way!
@@ -54,54 +55,137 @@ const sections = [
   },
 ];
 
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
+const splitToCharacters = (text: string) =>
+  Array.from(text).map((char) => (char === " " ? "\u00A0" : char));
+
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
+      // hard-sequenced: next card starts after previous one completes
+      // overlapped composition: cards breathe but flow together
+      staggerChildren: 0.18,
     },
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
-      type: "spring",
-      stiffness: 260,
-      damping: 20,
+      duration: 0.5,
+      ease: easeOut,
+      when: "beforeChildren",
+      staggerChildren: 0.08,
+      delayChildren: 0.08,
     },
   },
 };
 
-const HomeLayout = () => {
+const iconVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.7, y: 8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      duration: 0.34,
+      ease: easeOut,
+    },
+  },
+};
+
+const titleContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.02,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const titleCharacterVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.36,
+      ease: easeOut,
+    },
+  },
+};
+
+const descriptionVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: easeOut,
+    },
+  },
+};
+
+type HomeLayoutProps = {
+  /** Sync with page intro gate so SSR HTML does not flash full cards before Motion. */
+  isIntroReady?: boolean;
+};
+
+const HomeLayout = ({ isIntroReady = true }: HomeLayoutProps) => {
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      animate="visible"
+      animate={isIntroReady ? "visible" : "hidden"}
       className="flex flex-col gap-3"
     >
       {sections.map((section) => (
         <motion.div
           key={section.title}
           variants={itemVariants}
-          className="group p-4 rounded-lg bg-surface-light border border-white/5 hover:border-yellow-400/20 transition-all duration-300"
+          className="group p-4 rounded-lg bg-surface-light border border-white/5 hover:border-yellow-400/20 transition-all duration-300 will-change-transform"
         >
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-md bg-yellow-400/10 text-yellow-300">
+            <motion.div
+              variants={iconVariants}
+              className="p-2 rounded-md bg-yellow-400/10 text-yellow-300"
+            >
               <section.icon className="text-lg" />
-            </div>
-            <h3 className="text-lg font-semibold text-yellow-300">
-              {section.title}
+            </motion.div>
+            <h3 className="text-lg font-semibold text-yellow-300 overflow-hidden">
+              <motion.span
+                variants={titleContainerVariants}
+                className="inline-flex"
+              >
+                {splitToCharacters(section.title).map(
+                  (character, charIndex) => (
+                    <motion.span
+                      key={`${section.title}-${charIndex}`}
+                      variants={titleCharacterVariants}
+                      className="inline-block"
+                    >
+                      {character}
+                    </motion.span>
+                  ),
+                )}
+              </motion.span>
             </h3>
           </div>
-          <p className="text-white/70 leading-relaxed text-sm">
+          <motion.p
+            variants={descriptionVariants}
+            className="text-white/70 leading-relaxed text-sm"
+          >
             {section.content}
-          </p>
+          </motion.p>
         </motion.div>
       ))}
     </motion.div>

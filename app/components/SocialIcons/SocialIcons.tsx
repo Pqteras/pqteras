@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 import { FaLinkedin, FaGithub, FaInstagram, FaDiscord } from "react-icons/fa";
 
 const socials = [
@@ -22,27 +22,57 @@ const socials = [
   },
 ];
 
-const SocialIcons = () => {
+type SocialIconsProps = {
+  isIntroReady?: boolean;
+};
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const iconVariants: Variants = {
+  hidden: { opacity: 0, y: 10, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
+const SocialIcons = ({ isIntroReady = true }: SocialIconsProps) => {
   return (
-    <div className="flex items-center gap-1">
-      {socials.map((social, index) => (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate={isIntroReady ? "visible" : "hidden"}
+      className="flex items-center gap-1"
+    >
+      {socials.map((social) => (
         <motion.a
           key={social.label}
           href={social.href}
           target="_blank"
           rel="noopener noreferrer"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.05 }}
+          variants={iconVariants}
           whileHover={{ y: -2 }}
           whileTap={{ y: -2 }}
-          className="p-2 rounded-lg bg-[#151515] border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 hover:bg-yellow-400/5 transition-colors duration-300"
+          className="p-2 rounded-lg bg-surface-light border border-white/10 text-white/60 hover:text-yellow-300 hover:border-yellow-400/30 hover:bg-yellow-400/5 transition-colors duration-300"
           aria-label={social.label}
         >
           <social.icon size={16} />
         </motion.a>
       ))}
-    </div>
+    </motion.div>
   );
 };
 

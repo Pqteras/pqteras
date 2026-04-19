@@ -1,60 +1,58 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Status from "./components/Status/Status";
 import Tabs from "./components/Tabs/Tabs";
 import SocialIcons from "./components/SocialIcons/SocialIcons";
 import HomeLayout from "./layout/HomeLayout";
-import ProjectLayout from "./layout/ProjectLayout";
+
+import { useClientReady } from "./hooks/useClientReady";
+import { useIntroGate } from "./hooks/useIntroGate";
+import { useCursorGlow } from "./hooks/useCursorGlow";
+import { createHomeMotion } from "./motion/homeMotion";
+import WorkLayout from "./layout/WorkLayout";
 
 const Home = () => {
   const [selectedTab, setSelectedTab] = useState("home");
-  const [isClient, setIsClient] = useState(false);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const prevTabRef = useRef<string>("home");
+  const reduceMotion = useReducedMotion() ?? false;
 
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
-  const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
-  const springX = useSpring(cursorX, springConfig);
-  const springY = useSpring(cursorY, springConfig);
+  const isClient = useClientReady();
+  const isIntroReady = useIntroGate(isClient);
+  const { glowRef, springX, springY } = useCursorGlow({
+    enabled: isClient,
+    showGlow: true,
+  });
+  const motionConfig = createHomeMotion(reduceMotion);
+
+  const headingLetters = useMemo(() => "Theocharis".split(""), []);
+  const subtitleWords = useMemo(
+    () => "A, soon to be, Software Developer".split(" "),
+    [],
+  );
+
+  const tabDirection =
+    selectedTab === "work" && prevTabRef.current === "home"
+      ? 1
+      : selectedTab === "home" && prevTabRef.current === "work"
+        ? -1
+        : 0;
 
   useEffect(() => {
-    setIsClient(true);
-    if (typeof window !== "undefined") {
-      cursorX.set(window.innerWidth / 2);
-      cursorY.set(window.innerHeight / 2);
-    }
-  }, [cursorX, cursorY]);
+    prevTabRef.current = selectedTab;
+  }, [selectedTab]);
 
-  useEffect(() => {
-    if (!isClient) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (window.innerWidth < 768) return;
-
-      cursorX.set(e.clientX);
-      cursorY.set(e.clientY);
-
-      if (glowRef.current) {
-        glowRef.current.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(253, 224, 71, 0.06), transparent 40%)`;
-      }
-    };
-
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [isClient, cursorX, cursorY]);
+  if (!isClient) {
+    return <div className="min-h-screen bg-transparent" aria-hidden="true" />;
+  }
 
   return (
     <>
       <div
         ref={glowRef}
-        className="fixed inset-0 pointer-events-none z-0 hidden md:block"
+        className="fixed inset-0 pointer-events-none z-1 hidden md:block will-change-[background]"
+        aria-hidden="true"
       />
 
       {isClient && (
@@ -71,56 +69,102 @@ const Home = () => {
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 md:px-6 md:py-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-          className="w-full max-w-2xl mb-24"
+          variants={motionConfig.shell}
+          initial="hidden"
+          animate={isIntroReady ? "visible" : "hidden"}
+          className={`w-full max-w-2xl mb-24 transform-gpu will-change-transform${!isIntroReady ? " pointer-events-none" : ""}`}
         >
           <motion.div
-            layout
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            layout="position"
+            variants={motionConfig.card}
+            initial="hidden"
+            animate={isIntroReady ? "visible" : "hidden"}
             className="relative p-5 md:p-6 rounded-xl bg-surface border border-white/5 shadow-lg shadow-yellow-400/5 overflow-hidden"
           >
-            <div className="flex flex-row items-center sm:items-center justify-between gap-3">
+            <motion.div
+              variants={motionConfig.row}
+              className="flex flex-row items-center sm:items-center justify-between gap-3"
+            >
               <div>
                 <p className="text-white/50 text-sm mb-1">Hello, I&apos;m</p>
-                <h1 className="text-3xl md:text-4xl font-bold text-white">
-                  <span className="text-yellow-300 hover:text-yellow-400 transition-colors duration-300 cursor-default">
-                    Theocharis
-                  </span>
+                <h1 className="text-3xl md:text-4xl font-bold text-white overflow-hidden">
+                  <motion.span
+                    variants={motionConfig.nameContainer}
+                    initial="hidden"
+                    animate={isIntroReady ? "visible" : "hidden"}
+                    className="inline-flex text-yellow-300 hover:text-yellow-400 transition-colors duration-300 cursor-default"
+                  >
+                    {headingLetters.map((letter, index) => (
+                      <motion.span
+                        key={`${letter}-${index}`}
+                        variants={motionConfig.nameLetter}
+                        className="inline-block"
+                      >
+                        {letter}
+                      </motion.span>
+                    ))}
+                  </motion.span>
                 </h1>
               </div>
-              <Status />
-            </div>
+              <Status isIntroReady={isIntroReady} />
+            </motion.div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
-              <p className="text-white/60 text-sm">
-                A wannabe Software Developer
-              </p>
-              <SocialIcons />
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
+            <motion.div
+              variants={motionConfig.row}
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10"
+            >
+              <motion.p
+                variants={motionConfig.subtitleContainer}
+                initial="hidden"
+                animate={isIntroReady ? "visible" : "hidden"}
+                className="text-white/60 text-sm flex flex-wrap gap-x-1"
               >
-                {selectedTab === "home" ? <HomeLayout /> : <ProjectLayout />}
-              </motion.div>
-            </AnimatePresence>
+                {subtitleWords.map((word, index) => (
+                  <motion.span
+                    key={`${word}-${index}`}
+                    variants={motionConfig.subtitleWord}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.p>
+              <SocialIcons isIntroReady={isIntroReady} />
+            </motion.div>
+
+            <motion.div variants={motionConfig.row} className="relative">
+              <AnimatePresence mode="wait" custom={tabDirection}>
+                <motion.div
+                  key={selectedTab}
+                  role="tabpanel"
+                  aria-label={selectedTab === "home" ? "Home" : "Work"}
+                  custom={tabDirection}
+                  variants={motionConfig.tabPanel.variants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  {selectedTab === "home" ? (
+                    <HomeLayout isIntroReady={isIntroReady} />
+                  ) : (
+                    <WorkLayout isIntroReady={isIntroReady} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
           </motion.div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2"
+          variants={motionConfig.dock}
+          initial="hidden"
+          animate={isIntroReady ? "visible" : "hidden"}
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 transform-gpu${!isIntroReady ? " pointer-events-none" : ""}`}
         >
-          <Tabs selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
+          <Tabs
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            isIntroReady={isIntroReady}
+          />
         </motion.div>
       </div>
     </>
