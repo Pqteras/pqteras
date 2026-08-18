@@ -1,79 +1,121 @@
-// Purpose: Store work portfolio data for the Work tab / WorkLayout.
-
-interface WorkItem {
-  title_color?: string;
-  logo?: string;
-  invert_logo?: boolean;
-  url?: string;
-  github_url?: string;
+export type Technology = {
   name: string;
-  description?: string;
-  screenshots?: string[];
-  techStack: string[];
-}
-
-const techStack = {
-  JavaScript:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
-  TypeScript:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
-  Java: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg",
-  React:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
-  Node: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
-  MongoDB:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg",
-  DiscordJS:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/discordjs/discordjs-original.svg",
-  TailwindCSS:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg",
-  SCSS: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sass/sass-original.svg",
-  Vite: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg",
-  NextJS:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg",
-  ElectronJS:
-    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/electron/electron-original.svg",
+  icon: string;
 };
+
+export type WorkItem = {
+  name: string;
+  description: string;
+  accent: string;
+  technologies: Technology[];
+  logo?: string;
+  invertLogo?: boolean;
+  website?: string;
+  repository?: string;
+  screenshots?: string[];
+};
+
+const technology = {
+  javascript: {
+    name: "JavaScript",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg",
+  },
+  typescript: {
+    name: "TypeScript",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
+  },
+  java: {
+    name: "Java",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg",
+  },
+  react: {
+    name: "React",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+  },
+  node: {
+    name: "Node.js",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
+  },
+  mongodb: {
+    name: "MongoDB",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mongodb/mongodb-original.svg",
+  },
+  discord: {
+    name: "Discord.js",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/discordjs/discordjs-original.svg",
+  },
+  tailwind: {
+    name: "Tailwind CSS",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg",
+  },
+  sass: {
+    name: "Sass",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sass/sass-original.svg",
+  },
+  vite: {
+    name: "Vite",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vitejs/vitejs-original.svg",
+  },
+  next: {
+    name: "Next.js",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nextjs/nextjs-original.svg",
+  },
+  electron: {
+    name: "Electron",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/electron/electron-original.svg",
+  },
+} satisfies Record<string, Technology>;
 
 export const workItems: WorkItem[] = [
   {
-    logo: "/project-logos/lawnetwork-logo.png",
-    invert_logo: true,
-    title_color: "text-orange-400",
-    url: `https://www.lawnetwork.eu`,
-    name: `LawNetwork`,
-    description: `Official Website for the LawNetwork organization.`,
-    techStack: [
-      techStack.React,
-      techStack.JavaScript,
-      techStack.TailwindCSS,
-      techStack.SCSS,
-      techStack.Vite,
+    name: "Docrivo",
+    description:
+      "An advanced application designed to streamline the process of patient management in a doctor's office. With its powerful search functionality, it allows healthcare professionals to easily find patient records based on various criteria. Additionally, Docrivo enables doctors to keep track of patients' visits, making it convenient to access and update their medical history. This comprehensive solution aims to enhance efficiency and improve patient care in the medical field.",
+    accent: "text-indigo-400",
+    logo: "/project-logos/docrivo-logo.png",
+    technologies: [
+      technology.electron,
+      technology.tailwind,
+      technology.typescript,
+      technology.vite,
+      technology.mongodb,
     ],
-  },
-  {
-    logo: "/project-logos/dermapad-logo.png",
-    title_color: "text-indigo-400",
-    name: `DermaPad`,
-    description: `Private patient management system built for my mother’s dermatology clinic. It supports appointment scheduling, detailed procedure documentation, and full patient history tracking. The app also generates analytics and statistics on visits and patient trends, including clear yearly charts to help the clinic understand performance over time.`,
-    techStack: [techStack.ElectronJS, techStack.TailwindCSS, techStack.TypeScript, techStack.Vite, techStack.MongoDB],
     screenshots: [
-      "/projects/dermapad/dermapad1.jpg",
-      "/projects/dermapad/dermapad2.jpg",
-      "/projects/dermapad/dermapad3.jpg",
+      "/projects/docrivo/docrivo_main.png",
+      "/projects/docrivo/docrivo_staff.png",
+      "/projects/docrivo/docrivo_services.png",
+      "/projects/docrivo/docrivo_analytics.png",
+      "/projects/docrivo/docrivo_analytics_2.png",
     ],
   },
   {
+    name: "LawNetwork",
+    description: "Official website for the LawNetwork organization.",
+    accent: "text-orange-400",
+    logo: "/project-logos/lawnetwork-logo.png",
+    invertLogo: true,
+    website: "https://www.lawnetwork.eu",
+    technologies: [
+      technology.react,
+      technology.javascript,
+      technology.tailwind,
+      technology.sass,
+      technology.vite,
+    ],
+  },
+  {
+    name: "ForFeit.GG",
+    description:
+      "League of Legends statistics platform delivering deep match history analytics, champion meta insights, and player progression tracking. Features include leaderboard/ranked ladder tracking, LP progression charts over time, role and champion performance breakdowns, tier lists per patch, and build/rune recommendations based on real data. (Project discontinued due to financial issues.)",
+    accent: "text-yellow-300",
     logo: "/project-logos/forfeitgg-logo.png",
-    title_color: "text-yellow-500",
-    url: 'https://discord.com/channels/1339953444588490844/1339960283057356911/1456659654489931827',
-    name: `ForFeit.GG`,
-    description: `League of Legends statistics platform delivering deep match history analytics, champion meta insights, and player progression tracking. Features include leaderboard/ranked ladder tracking, LP progression charts over time, role and champion performance breakdowns, tier lists per patch, and build/rune recommendations based on real data. (Project discontinued due to financial issues.)`,
-    techStack: [
-      techStack.NextJS,
-      techStack.TypeScript,
-      techStack.TailwindCSS,
-      techStack.MongoDB,
+    website:
+      "https://discord.com/channels/1339953444588490844/1339960283057356911/1456659654489931827",
+    technologies: [
+      technology.next,
+      technology.typescript,
+      technology.tailwind,
+      technology.mongodb,
     ],
     screenshots: [
       "/projects/forfeitgg/forfeitgg_showcase_1.png",
@@ -84,39 +126,41 @@ export const workItems: WorkItem[] = [
     ],
   },
   {
+    name: "LamiUTH",
+    description:
+      "A project for the University of Thessaly, Department of Informatics & Telecommunications, designed to provide students with course information, real-time bus tracking, and a custom Discord Bot for essential services, all seamlessly integrated through a robust API that powers both the website and bot functionalities.",
+    accent: "text-red-400",
     logo: "/project-logos/lamiuth-logo.png",
-    title_color: "text-red-500",
-    url: `https://www.lamiuth.com/`,
-    name: `LamiUTH`,
-    description: `A project for the University of Thessaly, Department of Informatics & Telecommunications, designed to provide students with course information, real-time bus tracking, and a custom Discord Bot for essential services, all seamlessly integrated through a robust API that powers both the website and bot functionalities.`,
-    techStack: [
-      techStack.React,
-      techStack.Node,
-      techStack.MongoDB,
-      techStack.DiscordJS,
-      techStack.TypeScript,
+    website: "https://www.lamiuth.com/",
+    technologies: [
+      technology.react,
+      technology.node,
+      technology.mongodb,
+      technology.discord,
+      technology.typescript,
     ],
   },
   {
+    name: "DiscordStamps",
+    description: "A basic and useful Discord timestamp generator.",
+    accent: "text-blue-400",
     logo: "/project-logos/discordstamps-logo.svg",
-    title_color: "text-blue-500",
-    url: `https://discordstamps.vercel.app/`,
-    github_url: `https://github.com/Pqteras/discord-timestamps`,
-    name: `DiscordStamps`,
-    description: `A basic and useful discord timestamp generator`,
-    techStack: [
-      techStack.React,
-      techStack.JavaScript,
-      techStack.TailwindCSS,
-      techStack.SCSS,
-      techStack.Vite,
+    website: "https://discordstamps.vercel.app/",
+    repository: "https://github.com/Pqteras/discord-timestamps",
+    technologies: [
+      technology.react,
+      technology.javascript,
+      technology.tailwind,
+      technology.sass,
+      technology.vite,
     ],
   },
   {
-    title_color: "text-amber-500",
-    github_url: `https://github.com/Pqteras/superenchants`,
-    name: `SuperEnchants`,
-    description: `Minecraft Mod that adds the ability to make a super enchantment out of the already existing ones.`,
-    techStack: [techStack.Java],
+    name: "SuperEnchants",
+    description:
+      "Minecraft Mod that adds the ability to make a super enchantment out of the already existing ones.",
+    accent: "text-amber-400",
+    repository: "https://github.com/Pqteras/superenchants",
+    technologies: [technology.java],
   },
 ];

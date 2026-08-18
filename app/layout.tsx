@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Outfit } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import PortfolioShell from "./components/PortfolioShell/PortfolioShell";
+import "lenis/dist/lenis.css";
 import "./styles/globals.css";
 
 const outfit = Outfit({
@@ -10,7 +12,10 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Theocharis Pasvantis",
+  title: {
+    default: "Theocharis Pasvantis",
+    template: "%s - Theocharis Pasvantis",
+  },
   description:
     "Software Developer Portfolio - Building digital experiences with modern web technologies",
   icons: {
@@ -26,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={outfit.className}>
-        {children}
+        <PortfolioShell>{children}</PortfolioShell>
         <Analytics />
         <SpeedInsights />
       </body>

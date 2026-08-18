@@ -57,17 +57,12 @@ const sections = [
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
-const splitToCharacters = (text: string) =>
-  Array.from(text).map((char) => (char === " " ? "\u00A0" : char));
-
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      // hard-sequenced: next card starts after previous one completes
-      // overlapped composition: cards breathe but flow together
-      staggerChildren: 0.18,
+      staggerChildren: 0.08,
     },
   },
 };
@@ -81,9 +76,6 @@ const itemVariants: Variants = {
     transition: {
       duration: 0.5,
       ease: easeOut,
-      when: "beforeChildren",
-      staggerChildren: 0.08,
-      delayChildren: 0.08,
     },
   },
 };
@@ -101,28 +93,6 @@ const iconVariants: Variants = {
   },
 };
 
-const titleContainerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.02,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const titleCharacterVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.36,
-      ease: easeOut,
-    },
-  },
-};
-
 const descriptionVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
   visible: {
@@ -135,17 +105,12 @@ const descriptionVariants: Variants = {
   },
 };
 
-type HomeLayoutProps = {
-  /** Sync with page intro gate so SSR HTML does not flash full cards before Motion. */
-  isIntroReady?: boolean;
-};
-
-const HomeLayout = ({ isIntroReady = true }: HomeLayoutProps) => {
+const HomeLayout = () => {
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      animate={isIntroReady ? "visible" : "hidden"}
+      animate="visible"
       className="flex flex-col gap-3"
     >
       {sections.map((section) => (
@@ -161,23 +126,8 @@ const HomeLayout = ({ isIntroReady = true }: HomeLayoutProps) => {
             >
               <section.icon className="text-lg" />
             </motion.div>
-            <h3 className="text-lg font-semibold text-yellow-300 overflow-hidden">
-              <motion.span
-                variants={titleContainerVariants}
-                className="inline-flex"
-              >
-                {splitToCharacters(section.title).map(
-                  (character, charIndex) => (
-                    <motion.span
-                      key={`${section.title}-${charIndex}`}
-                      variants={titleCharacterVariants}
-                      className="inline-block"
-                    >
-                      {character}
-                    </motion.span>
-                  ),
-                )}
-              </motion.span>
+            <h3 className="text-lg font-semibold text-yellow-300">
+              {section.title}
             </h3>
           </div>
           <motion.p

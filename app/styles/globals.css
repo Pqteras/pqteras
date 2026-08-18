@@ -16,10 +16,6 @@
   --color-offline: #6b7280;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   background-color: #212121;
   color: var(--color-text-primary);

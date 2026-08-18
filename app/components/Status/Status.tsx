@@ -3,10 +3,6 @@
 import { useLanyard } from "react-use-lanyard";
 import { motion, type Variants } from "motion/react";
 
-type StatusProps = {
-  isIntroReady?: boolean;
-};
-
 const statusVariants: Variants = {
   hidden: { opacity: 0, y: 8, scale: 0.96 },
   visible: {
@@ -20,7 +16,7 @@ const statusVariants: Variants = {
   },
 };
 
-const Status = ({ isIntroReady = true }: StatusProps) => {
+const Status = () => {
   const { status } = useLanyard({
     userId: "303804858744700929",
     socket: true,
@@ -32,7 +28,7 @@ const Status = ({ isIntroReady = true }: StatusProps) => {
     <motion.div
       variants={statusVariants}
       initial="hidden"
-      animate={isIntroReady ? "visible" : "hidden"}
+      animate="visible"
       className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-light border border-white/10"
     >
       <span className="relative grid h-2.5 w-2.5 place-items-center">

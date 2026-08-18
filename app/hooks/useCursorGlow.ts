@@ -1,31 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMotionValue, useSpring } from "motion/react";
 
 type CursorGlowResult = {
-  glowRef: React.RefObject<HTMLDivElement | null>;
+  isVisible: boolean;
   springX: ReturnType<typeof useSpring>;
   springY: ReturnType<typeof useSpring>;
 };
 
 type UseCursorGlowOptions = {
-  /** When false, no listeners (SSR / pre-mount). */
   enabled: boolean;
-  /** Spotlight gradient; keep cursor dot even when false. */
-  showGlow?: boolean;
 };
 
-export const useCursorGlow = ({
-  enabled,
-  showGlow = true,
-}: UseCursorGlowOptions) => {
-  const glowRef = useRef<HTMLDivElement>(null);
+export const useCursorGlow = ({ enabled }: UseCursorGlowOptions) => {
   const mouseFrameRef = useRef<number | null>(null);
   const mousePositionRef = useRef<{ x: number; y: number } | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const cursorX = useMotionValue(0);
-  const cursorY = useMotionValue(0);
+  const cursorX = useMotionValue(-600);
+  const cursorY = useMotionValue(-600);
 
   const springConfig = { damping: 25, stiffness: 200, mass: 0.5 };
   const springX = useSpring(cursorX, springConfig);
@@ -34,17 +28,10 @@ export const useCursorGlow = ({
   useEffect(() => {
     if (!enabled) return;
 
-    const cx = window.innerWidth / 2;
-    const cy = window.innerHeight / 2;
-    cursorX.set(cx);
-    cursorY.set(cy);
-    if (showGlow && glowRef.current) {
-      glowRef.current.style.background = `radial-gradient(560px circle at ${cx}px ${cy}px, rgba(253, 224, 71, 0.14) 0%, rgba(253, 224, 71, 0.05) 35%, transparent 55%)`;
-    }
-
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (window.innerWidth < 768) return;
 
+      setIsVisible(true);
       mousePositionRef.current = { x: e.clientX, y: e.clientY };
       if (mouseFrameRef.current) return;
 
@@ -57,32 +44,31 @@ export const useCursorGlow = ({
 
         cursorX.set(nextPosition.x);
         cursorY.set(nextPosition.y);
-
-        if (showGlow && glowRef.current) {
-          glowRef.current.style.background = `radial-gradient(560px circle at ${nextPosition.x}px ${nextPosition.y}px, rgba(253, 224, 71, 0.14) 0%, rgba(253, 224, 71, 0.05) 35%, transparent 55%)`;
-        }
-
         mouseFrameRef.current = null;
       });
     };
 
-    const handleMouseLeave = () => {
-      if (glowRef.current) glowRef.current.style.background = "none";
+    const handlePointerLeave = (e: PointerEvent) => {
+      if (!e.relatedTarget) setIsVisible(false);
     };
 
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mouseleave", handleMouseLeave, { passive: true });
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerout", handlePointerLeave);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerout", handlePointerLeave);
       if (mouseFrameRef.current) {
         window.cancelAnimationFrame(mouseFrameRef.current);
         mouseFrameRef.current = null;
       }
     };
-  }, [enabled, showGlow, cursorX, cursorY]);
+  }, [enabled, cursorX, cursorY]);
 
-  return { glowRef, springX, springY } satisfies CursorGlowResult;
+  return {
+    isVisible: enabled && isVisible,
+    springX,
+    springY,
+  } satisfies CursorGlowResult;
 };
 

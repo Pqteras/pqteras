@@ -22,10 +22,6 @@ const socials = [
   },
 ];
 
-type SocialIconsProps = {
-  isIntroReady?: boolean;
-};
-
 const containerVariants: Variants = {
   hidden: {},
   visible: {
@@ -49,12 +45,12 @@ const iconVariants: Variants = {
   },
 };
 
-const SocialIcons = ({ isIntroReady = true }: SocialIconsProps) => {
+const SocialIcons = () => {
   return (
     <motion.div
       variants={containerVariants}
       initial="hidden"
-      animate={isIntroReady ? "visible" : "hidden"}
+      animate="visible"
       className="flex items-center gap-1"
     >
       {socials.map((social) => (
