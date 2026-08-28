@@ -11,6 +11,7 @@ import {
   useState,
   type MouseEvent,
 } from "react";
+import GlitchNameHeading from "../GlitchNameHeading/GlitchNameHeading";
 import SocialIcons from "../SocialIcons/SocialIcons";
 import Status from "../Status/Status";
 import Tabs from "../Tabs/Tabs";
@@ -81,7 +82,6 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
     setIsExpandingToWork(true);
   };
 
-  const headingLetters = useMemo(() => "Theocharis".split(""), []);
   const subtitleWords = useMemo(() => "Full-Stack Developer".split(" "), []);
 
   const shellTransition = reduceMotion
@@ -168,23 +168,13 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
               >
                 <div>
                   <p className="mb-1 text-sm text-white/50">Hello, I&apos;m</p>
-                  <h1 className="overflow-hidden text-3xl font-bold text-white md:text-4xl">
-                    <motion.span
-                      variants={motionConfig.nameContainer}
-                      initial="hidden"
-                      animate="visible"
-                      className="inline-flex cursor-default text-yellow-300 transition-colors duration-300 hover:text-yellow-400"
-                    >
-                      {headingLetters.map((letter, index) => (
-                        <motion.span
-                          key={`${letter}-${index}`}
-                          variants={motionConfig.nameLetter}
-                          className="inline-block"
-                        >
-                          {letter}
-                        </motion.span>
-                      ))}
-                    </motion.span>
+                  <h1 className="text-3xl font-bold leading-none text-white md:text-4xl">
+                    <GlitchNameHeading
+                      primaryName="Theocharis"
+                      altName="Pqteras"
+                      motionConfig={motionConfig}
+                      reduceMotion={reduceMotion}
+                    />
                   </h1>
                 </div>
                 <Status />

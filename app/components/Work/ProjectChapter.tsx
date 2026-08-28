@@ -174,7 +174,7 @@ const ProjectChapter = ({
           >
             <ProjectMark item={item} />
             <div>
-              <p className="mb-1 text-xs font-medium uppercase tracking-[0.22em] text-white/35">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/35">
                 {String(index + 1).padStart(2, "0")} /{" "}
                 {String(total).padStart(2, "0")}
               </p>

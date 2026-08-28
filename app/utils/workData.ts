@@ -3,7 +3,20 @@ export type Technology = {
   icon: string;
 };
 
+export const WORK_ITEM_ORDER = [
+  "docrivo",
+  "lamiuth",
+  "forfeitgg",
+  "volume-booster",
+  "lawnetwork",
+  "discordstamps",
+  "superenchants",
+] as const;
+
+export type WorkItemId = (typeof WORK_ITEM_ORDER)[number];
+
 export type WorkItem = {
+  id: WorkItemId;
   name: string;
   description: string;
   accent: string;
@@ -66,8 +79,9 @@ const technology = {
   },
 } satisfies Record<string, Technology>;
 
-export const workItems: WorkItem[] = [
-  {
+const workItemsById = {
+  docrivo: {
+    id: "docrivo",
     name: "Docrivo",
     description:
       "An advanced application designed to streamline the process of patient management in a doctor's office. With its powerful search functionality, it allows healthcare professionals to easily find patient records based on various criteria. Additionally, Docrivo enables doctors to keep track of patients' visits, making it convenient to access and update their medical history. This comprehensive solution aims to enhance efficiency and improve patient care in the medical field.",
@@ -88,7 +102,25 @@ export const workItems: WorkItem[] = [
       "/projects/docrivo/docrivo_analytics_2.png",
     ],
   },
-  {
+  lamiuth: {
+    id: "lamiuth",
+    name: "LamiUTH",
+    description:
+      "A project for the University of Thessaly, Department of Informatics & Telecommunications, designed to provide students with course information, real-time bus tracking, and a custom Discord Bot for essential services, all seamlessly integrated through a robust API that powers both the website and bot functionalities.",
+    accent: "text-red-400",
+    logo: "/project-logos/lamiuth-logo.png",
+    website: "https://www.lamiuth.com/",
+    screenshots: ["/projects/lamiuth/lamiuth-showcase.jpg"],
+    technologies: [
+      technology.react,
+      technology.node,
+      technology.mongodb,
+      technology.discord,
+      technology.typescript,
+    ],
+  },
+  lawnetwork: {
+    id: "lawnetwork",
     name: "LawNetwork",
     description: "Official website for the LawNetwork organization.",
     accent: "text-orange-400",
@@ -103,7 +135,8 @@ export const workItems: WorkItem[] = [
       technology.vite,
     ],
   },
-  {
+  forfeitgg: {
+    id: "forfeitgg",
     name: "ForFeit.GG",
     description:
       "League of Legends statistics platform delivering deep match history analytics, champion meta insights, and player progression tracking. Features include leaderboard/ranked ladder tracking, LP progression charts over time, role and champion performance breakdowns, tier lists per patch, and build/rune recommendations based on real data. (Project discontinued due to financial issues.)",
@@ -125,22 +158,19 @@ export const workItems: WorkItem[] = [
       "/projects/forfeitgg/forfeitgg_showcase_5.png",
     ],
   },
-  {
-    name: "LamiUTH",
+  "volume-booster": {
+    id: "volume-booster",
+    name: "Volume Booster",
     description:
-      "A project for the University of Thessaly, Department of Informatics & Telecommunications, designed to provide students with course information, real-time bus tracking, and a custom Discord Bot for essential services, all seamlessly integrated through a robust API that powers both the website and bot functionalities.",
-    accent: "text-red-400",
-    logo: "/project-logos/lamiuth-logo.png",
-    website: "https://www.lamiuth.com/",
-    technologies: [
-      technology.react,
-      technology.node,
-      technology.mongodb,
-      technology.discord,
-      technology.typescript,
-    ],
+      "Chrome extension for when 100% isn't loud enough. Boosts the current tab up to 670%. Each tab keeps its own level until you close it.",
+    accent: "text-lime-300",
+    logo: "/project-logos/volume-booster-logo.svg",
+    screenshots: ["/projects/volume-booster/volume-booster-showcase.webp"],
+    repository: "https://github.com/Pqteras/volume-booster-extension",
+    technologies: [technology.typescript],
   },
-  {
+  discordstamps: {
+    id: "discordstamps",
     name: "DiscordStamps",
     description: "A basic and useful Discord timestamp generator.",
     accent: "text-blue-400",
@@ -155,7 +185,8 @@ export const workItems: WorkItem[] = [
       technology.vite,
     ],
   },
-  {
+  superenchants: {
+    id: "superenchants",
     name: "SuperEnchants",
     description:
       "Minecraft Mod that adds the ability to make a super enchantment out of the already existing ones.",
@@ -163,4 +194,8 @@ export const workItems: WorkItem[] = [
     repository: "https://github.com/Pqteras/superenchants",
     technologies: [technology.java],
   },
-];
+} satisfies Record<WorkItemId, WorkItem>;
+
+export const workItems: WorkItem[] = WORK_ITEM_ORDER.map(
+  (id) => workItemsById[id],
+);

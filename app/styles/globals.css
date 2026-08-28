@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./glitch-name.css";
 
 @theme {
   --color-background: #212121;

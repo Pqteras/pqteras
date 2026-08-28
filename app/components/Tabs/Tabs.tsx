@@ -26,7 +26,7 @@ const Tabs = ({ activeHref, onNavigate }: TabsProps) => {
       initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-1 p-1.5 rounded-full bg-surface border border-white/10 shadow-lg shadow-black/20"
+      className="select-none flex items-center gap-1 p-1.5 rounded-full bg-surface border border-white/10 shadow-lg shadow-black/20"
     >
       {tabs.map((tab) => {
         const isActive = currentHref === tab.href;

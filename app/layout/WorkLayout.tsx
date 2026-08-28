@@ -1,7 +1,12 @@
 "use client";
 
 import Lenis from "lenis";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ProjectChapter from "../components/Work/ProjectChapter";
@@ -117,47 +122,52 @@ const WorkLayout = () => {
               animate="visible"
               className="mx-auto flex min-h-full max-w-6xl flex-col justify-center px-5 py-12 md:px-10 md:py-16 lg:px-16"
             >
-            <motion.p
-              variants={heroItemVariants}
-              className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-yellow-300/70"
-            >
-              Featured work
-            </motion.p>
-            <motion.h2
-              variants={heroItemVariants}
-              className="max-w-3xl text-4xl font-semibold tracking-[-0.03em] text-white md:text-6xl"
-            >
-              Building useful things, one problem at a time.
-            </motion.h2>
-            <motion.div
-              variants={heroItemVariants}
-              className="mt-6 flex items-end justify-between gap-6"
-            >
               <motion.p
                 variants={heroItemVariants}
-                className="max-w-2xl text-base leading-7 text-white/50 md:text-lg"
+                className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-yellow-300/70"
               >
-                Web platforms, desktop applications, and community tools designed for real-world use.
+                Featured work
               </motion.p>
+              <motion.h2
+                variants={heroItemVariants}
+                className="max-w-3xl text-4xl font-semibold tracking-[-0.03em] text-white md:text-6xl"
+              >
+                Building useful things, one problem at a time.
+              </motion.h2>
               <motion.div
                 variants={heroItemVariants}
-                className="hidden items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/30 sm:flex"
-                aria-hidden="true"
+                className="mt-6 flex items-end justify-between gap-6"
               >
-                <motion.span
-                  animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                  className="flex items-center gap-2"
+                <motion.p
+                  variants={heroItemVariants}
+                  className="max-w-2xl text-base leading-7 text-white/50 md:text-lg"
                 >
-                  Scroll <FaChevronDown size={10} />
-                </motion.span>
+                  Web platforms, desktop applications, and community tools
+                  designed for real-world use.
+                </motion.p>
+                <motion.div
+                  variants={heroItemVariants}
+                  className="hidden items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/30 sm:flex"
+                  aria-hidden="true"
+                >
+                  <motion.span
+                    animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
+                    transition={{
+                      duration: 1.8,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    Scroll <FaChevronDown size={10} />
+                  </motion.span>
+                </motion.div>
               </motion.div>
-            </motion.div>
             </motion.section>
 
             {workItems.map((item, index) => (
               <ProjectChapter
-                key={item.name}
+                key={item.id}
                 item={item}
                 index={index}
                 total={workItems.length}

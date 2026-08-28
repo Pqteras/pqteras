@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Outfit } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PortfolioShell from "./components/PortfolioShell/PortfolioShell";
+import { thegora } from "./fonts/thegora";
 import "lenis/dist/lenis.css";
 import "./styles/globals.css";
 
@@ -30,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={outfit.className}>
+      <body className={`${outfit.className} ${thegora.variable}`}>
         <PortfolioShell>{children}</PortfolioShell>
         <Analytics />
         <SpeedInsights />
