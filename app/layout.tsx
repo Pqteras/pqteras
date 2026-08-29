@@ -4,6 +4,13 @@ import { Outfit } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PortfolioShell from "./components/PortfolioShell/PortfolioShell";
 import { thegora } from "./fonts/thegora";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+  siteOpenGraph,
+  siteTwitter,
+} from "./utils/siteMetadata";
 import "lenis/dist/lenis.css";
 import "./styles/globals.css";
 
@@ -13,15 +20,17 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Theocharis Pasvantis",
-    template: "%s - Theocharis Pasvantis",
+    default: SITE_NAME,
+    template: `%s - ${SITE_NAME}`,
   },
-  description:
-    "Software Developer Portfolio - Building digital experiences with modern web technologies",
+  description: SITE_DESCRIPTION,
   icons: {
     icon: "/logo.png",
   },
+  openGraph: siteOpenGraph(SITE_NAME, SITE_DESCRIPTION),
+  twitter: siteTwitter(SITE_NAME, SITE_DESCRIPTION),
 };
 
 export default function RootLayout({
