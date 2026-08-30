@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "./glitch-name.css";
 
+:root {
+  --app-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --app-viewport-height: 100dvh;
+  }
+}
+
 @theme {
   --color-background: #212121;
   --color-surface: #191919;
@@ -20,8 +30,22 @@
 body {
   background-color: #212121;
   color: var(--color-text-primary);
-  min-height: 100vh;
+  min-height: var(--app-viewport-height);
   overflow-x: hidden;
+}
+
+html.app-scroll-locked,
+html.app-scroll-locked body {
+  height: var(--app-viewport-height) !important;
+  min-height: var(--app-viewport-height) !important;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+body.app-scroll-locked {
+  position: fixed;
+  inset: 0;
+  width: 100%;
 }
 
 ::selection {
@@ -65,4 +89,36 @@ body {
 }
 .desc-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.22);
+}
+
+/* Nav tab icons — animate on `.group` (full tab link) hover, not icon-only */
+.tab-nav-icon {
+  transform: translateY(0) scale(1);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center bottom;
+}
+
+.group:hover .tab-nav-icon--home {
+  transform: translateY(-3px) scale(1.12);
+}
+
+.group:hover .tab-nav-icon--work {
+  transform: translateY(-4px) scale(1.15);
+}
+
+.group:active .tab-nav-icon--home,
+.group:active .tab-nav-icon--work {
+  transform: translateY(0) scale(0.92);
+  transition-duration: 0.12s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-nav-icon,
+  .group:hover .tab-nav-icon--home,
+  .group:hover .tab-nav-icon--work,
+  .group:active .tab-nav-icon--home,
+  .group:active .tab-nav-icon--work {
+    transform: none !important;
+    transition: none !important;
+  }
 }

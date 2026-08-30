@@ -12,12 +12,13 @@ const sections = [
     title: "About Me",
     content: (
       <>
-        Greetings! My name is Theocharis Pasvantis, a computer science
-        enthusiast studying in Lamia, Greece. I&apos;m{" "}
-        {`${getAge()} years old and `}
-        love diving into the exciting world of technology. I&apos;m always eager
-        to learn new things, explore cool ideas, and grow my skills along the
-        way!
+        I&apos;m Theocharis Pasvantis, a {`${getAge()}-year-old `}Full-Stack
+        Developer from Greece, currently completing my Computer Science degree
+        at the University of Thessaly. I focus on building modern web
+        applications from end to end, from responsive interfaces to backend
+        systems, APIs, and databases. I&apos;m especially interested in creating
+        software that solves real problems and continuously improving the way I
+        design, build, and ship it.
       </>
     ),
   },
@@ -26,12 +27,11 @@ const sections = [
     title: "Hobbies",
     content: (
       <>
-        Alongside my computer science studies, I train at the gym regularly and
-        take fitness seriously, it keeps my routine disciplined and my head
-        clear. I&apos;m also very good at table tennis and enjoy the
-        competitive, fast-paced nature of the game. When I want to unwind,
-        I&apos;ll play video games, but overall I like keeping a balance between
-        building software and staying active.
+        Outside of development, I spend a lot of time training at the gym and
+        playing table tennis, which I particularly enjoy for its competitive and
+        fast-paced nature. I also play video games when I want to unwind.
+        Keeping a balance between building software and staying active is an
+        important part of my everyday routine.
       </>
     ),
   },
@@ -40,16 +40,19 @@ const sections = [
     title: "Knowledge",
     content: (
       <>
-        My coding journey started with JavaScript and TypeScript, driven by
-        Discord projects using{" "}
-        <Links text="discord.js" href="https://discord.js.org/" />. Over time, I
-        built a strong foundation in HTML and CSS and became comfortable working
-        with <Links text="React" href="https://reactjs.org/" />. Today, I’m very
-        strong with <Links text="Next.js" href="https://nextjs.org/" />,
-        building full-stack applications with modern routing patterns, server
-        components, and production-ready architecture. I also have hands-on
-        experience with{" "}
-        <Links text="Electron.js" href="https://www.electronjs.org/" />.
+        I work primarily with{" "}
+        <Links text="TypeScript" href="https://www.typescriptlang.org/" />,
+        building full-stack applications with{" "}
+        <Links text="Next.js" href="https://nextjs.org/" /> and using{" "}
+        <Links text="Vite" href="https://vite.dev/" /> for lighter projects. My
+        work covers frontend and backend development, APIs, authentication,
+        databases, and secure application architecture. I work primarily with{" "}
+        <Links text="MongoDB" href="https://www.mongodb.com/" />, while I&apos;m
+        also exploring{" "}
+        <Links text="SQLCipher" href="https://www.zetetic.net/sqlcipher/" /> for
+        encrypted local storage. Beyond the web, I work extensively with{" "}
+        <Links text="Electron.js" href="https://www.electronjs.org/" />,
+        building complete desktop applications with native functionality.
       </>
     ),
   },
@@ -111,31 +114,36 @@ const HomeLayout = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="flex flex-col gap-3"
+      className="flex flex-col mt-2"
     >
-      {sections.map((section) => (
+      {sections.map((section, index) => (
         <motion.div
           key={section.title}
           variants={itemVariants}
-          className="group p-4 rounded-lg bg-surface-light border border-white/5 hover:border-yellow-400/20 transition-all duration-300 will-change-transform"
+          className="group relative flex gap-4 pb-6 last:pb-0 will-change-transform"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <motion.div
-              variants={iconVariants}
-              className="p-2 rounded-md bg-yellow-400/10 text-yellow-300"
-            >
-              <section.icon className="text-lg" />
+          <div className="flex w-9 shrink-0 flex-col items-center pt-0.5">
+            <motion.div variants={iconVariants}>
+              <section.icon className="text-lg text-yellow-300/90 transition-colors duration-300 group-hover:text-yellow-300" />
             </motion.div>
-            <h3 className="text-lg font-semibold text-yellow-300">
+            {index < sections.length - 1 && (
+              <span
+                className="mt-3 w-px flex-1 bg-linear-to-b from-yellow-300/30 to-transparent"
+                aria-hidden="true"
+              />
+            )}
+          </div>
+          <div className="pb-2">
+            <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-[0.15em] text-yellow-300">
               {section.title}
             </h3>
+            <motion.p
+              variants={descriptionVariants}
+              className="text-white/70 leading-relaxed text-sm text-justify"
+            >
+              {section.content}
+            </motion.p>
           </div>
-          <motion.p
-            variants={descriptionVariants}
-            className="text-white/70 leading-relaxed text-sm"
-          >
-            {section.content}
-          </motion.p>
         </motion.div>
       ))}
     </motion.div>

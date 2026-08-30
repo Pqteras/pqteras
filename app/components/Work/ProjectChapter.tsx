@@ -7,8 +7,9 @@ import {
   useTransform,
 } from "motion/react";
 import Image from "next/image";
-import { useRef, type RefObject } from "react";
+import { type RefObject } from "react";
 import { FaExternalLinkAlt, FaGithub, FaImages } from "react-icons/fa";
+import { useHydratedRef } from "../../hooks/useHydratedRef";
 import type { WorkItem } from "../../utils/workData";
 
 type ProjectChapterProps = {
@@ -16,6 +17,7 @@ type ProjectChapterProps = {
   index: number;
   total: number;
   scrollContainer: RefObject<HTMLDivElement | null>;
+  isScrollContainerReady: boolean;
   onOpenGallery: (item: WorkItem) => void;
 };
 
@@ -127,20 +129,25 @@ const ProjectChapter = ({
   index,
   total,
   scrollContainer,
+  isScrollContainerReady,
   onOpenGallery,
 }: ProjectChapterProps) => {
-  const chapterRef = useRef<HTMLElement>(null);
+  const {
+    ref: chapterRef,
+    setRef: setChapterRef,
+    isHydrated: isChapterReady,
+  } = useHydratedRef<HTMLElement>();
   const reduceMotion = useReducedMotion() ?? false;
   const direction = index % 2 ? 1 : -1;
-  const { scrollYProgress } = useScroll({
-    container: scrollContainer,
-    target: chapterRef,
-    offset: ["start end", "end start"],
-  });
-  const opacity = useTransform(
-    scrollYProgress,
-    [0, 0.14, 0.86, 1],
-    [0.35, 1, 1, 0.35],
+  const canTrackScroll = isScrollContainerReady && isChapterReady;
+  const { scrollYProgress } = useScroll(
+    canTrackScroll
+      ? {
+          container: scrollContainer,
+          target: chapterRef,
+          offset: ["start end", "end start"],
+        }
+      : {},
   );
   const y = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [56, 0, 0, -36]);
   const scale = useTransform(
@@ -148,16 +155,22 @@ const ProjectChapter = ({
     [0, 0.2, 0.8, 1],
     [0.98, 1, 1, 0.985],
   );
-  const headingId = `project-${index + 1}`;
+  const scrollMotionStyle =
+    canTrackScroll && !reduceMotion ? { y, scale } : undefined;
+  const headingId = `project-${item.id}-heading`;
   const preview = item.screenshots?.[0];
-  const viewport = { root: scrollContainer, once: true, amount: 0.22 } as const;
+  const viewport = isScrollContainerReady
+    ? ({ root: scrollContainer, once: true, amount: 0.22 } as const)
+    : ({ once: true, amount: 0.22 } as const);
 
   return (
     <motion.article
-      ref={chapterRef}
+      ref={setChapterRef}
+      id={`work-project-${item.id}`}
+      data-work-project={item.id}
       aria-labelledby={headingId}
-      style={reduceMotion ? undefined : { opacity, y, scale }}
-      className="mx-auto flex min-h-[82dvh] w-full max-w-6xl items-center px-5 py-16 md:px-10 lg:px-16"
+      style={scrollMotionStyle}
+      className="mx-auto flex min-h-[calc(var(--app-viewport-height)-9rem)] w-full max-w-6xl items-center py-16 pl-10 pr-5 md:px-10 lg:px-16"
     >
       <div className="grid w-full items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12 lg:gap-20">
         <motion.div

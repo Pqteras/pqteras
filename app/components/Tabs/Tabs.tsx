@@ -1,16 +1,23 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
-import { FaHome } from "react-icons/fa";
-import { IoSparkles } from "react-icons/io5";
+import TabIcon from "./TabIcon";
 
 const tabs = [
-  { href: "/", label: "Home", icon: FaHome },
-  { href: "/work", label: "Work", icon: IoSparkles },
+  { href: "/", label: "Home", variant: "home" as const },
+  { href: "/work", label: "Work", variant: "work" as const },
+  { href: "/contact", label: "Contact", variant: "contact" as const },
 ];
+
+const tapSpring = {
+  type: "spring" as const,
+  stiffness: 520,
+  damping: 34,
+  mass: 0.55,
+};
 
 type TabsProps = {
   activeHref?: string;
@@ -20,6 +27,7 @@ type TabsProps = {
 const Tabs = ({ activeHref, onNavigate }: TabsProps) => {
   const pathname = usePathname();
   const currentHref = activeHref ?? pathname;
+  const reduceMotion = useReducedMotion() ?? false;
 
   return (
     <motion.div
@@ -32,27 +40,33 @@ const Tabs = ({ activeHref, onNavigate }: TabsProps) => {
         const isActive = currentHref === tab.href;
 
         return (
-          <Link
+          <motion.div
             key={tab.href}
-            href={tab.href}
-            scroll={false}
-            onClick={(event) => onNavigate?.(tab.href, event)}
-            className={`relative flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-sm transition-colors duration-300 ${
-              isActive ? "text-black" : "text-white/60 hover:text-white/80"
-            }`}
-            aria-label={`Navigate to ${tab.label}`}
-            aria-current={isActive ? "page" : undefined}
+            whileTap={reduceMotion ? undefined : { scale: 0.92 }}
+            transition={tapSpring}
+            className="relative"
           >
-            {isActive && (
-              <motion.span
-                layoutId="activeTab"
-                className="absolute inset-0 rounded-full bg-yellow-300"
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              />
-            )}
-            <tab.icon className="relative z-10 text-base" />
-            <span className="relative z-10">{tab.label}</span>
-          </Link>
+            <Link
+              href={tab.href}
+              scroll={false}
+              onClick={(event) => onNavigate?.(tab.href, event)}
+              className={`group relative flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-sm transition-colors duration-300 ${
+                isActive ? "text-black" : "text-white/60 hover:text-white/80"
+              }`}
+              aria-label={`Navigate to ${tab.label}`}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="activeTab"
+                  className="absolute inset-0 rounded-full bg-yellow-300"
+                  transition={{ type: "spring", stiffness: 480, damping: 32 }}
+                />
+              )}
+              <TabIcon variant={tab.variant} isActive={isActive} />
+              <span className="relative z-10">{tab.label}</span>
+            </Link>
+          </motion.div>
         );
       })}
     </motion.div>

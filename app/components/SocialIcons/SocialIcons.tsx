@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "motion/react";
 import { FaLinkedin, FaGithub, FaInstagram, FaDiscord } from "react-icons/fa";
+import CopyEmailButton from "../CopyEmailButton/CopyEmailButton";
 
 const socials = [
   { icon: FaGithub, href: "https://github.com/Pqteras", label: "GitHub" },
@@ -53,6 +54,7 @@ const SocialIcons = () => {
       animate="visible"
       className="flex items-center gap-1"
     >
+      <CopyEmailButton variant="icon" motionVariants={iconVariants} />
       {socials.map((social) => (
         <motion.a
           key={social.label}

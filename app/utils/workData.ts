@@ -45,9 +45,13 @@ const technology = {
     name: "React",
     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
   },
-  node: {
-    name: "Node.js",
-    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg",
+  bun: {
+    name: "Bun",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/bun/bun-original.svg",
+  },
+  sqlcipher: {
+    name: "SQLCipher",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg",
   },
   mongodb: {
     name: "MongoDB",
@@ -84,15 +88,14 @@ const workItemsById = {
     id: "docrivo",
     name: "Docrivo",
     description:
-      "An advanced application designed to streamline the process of patient management in a doctor's office. With its powerful search functionality, it allows healthcare professionals to easily find patient records based on various criteria. Additionally, Docrivo enables doctors to keep track of patients' visits, making it convenient to access and update their medical history. This comprehensive solution aims to enhance efficiency and improve patient care in the medical field.",
+      "Docrivo is a desktop application built for medical offices to handle patient management end to end. Staff can search and filter records, log visits, update medical history, and manage services from a single interface. It also includes analytics for tracking activity across the practice. Patient data is stored locally in an encrypted SQLCipher database, keeping sensitive information secure on-site.",
     accent: "text-indigo-400",
     logo: "/project-logos/docrivo-logo.png",
     technologies: [
       technology.electron,
-      technology.tailwind,
       technology.typescript,
-      technology.vite,
-      technology.mongodb,
+      technology.sqlcipher,
+      technology.tailwind,
     ],
     screenshots: [
       "/projects/docrivo/docrivo_main.png",
@@ -112,11 +115,10 @@ const workItemsById = {
     website: "https://www.lamiuth.com/",
     screenshots: ["/projects/lamiuth/lamiuth-showcase.jpg"],
     technologies: [
-      technology.react,
-      technology.node,
+      technology.next,
+      technology.typescript,
       technology.mongodb,
       technology.discord,
-      technology.typescript,
     ],
   },
   lawnetwork: {
@@ -128,11 +130,10 @@ const workItemsById = {
     invertLogo: true,
     website: "https://www.lawnetwork.eu",
     technologies: [
-      technology.react,
+      technology.vite,
       technology.javascript,
       technology.tailwind,
       technology.sass,
-      technology.vite,
     ],
   },
   forfeitgg: {
@@ -147,8 +148,8 @@ const workItemsById = {
     technologies: [
       technology.next,
       technology.typescript,
-      technology.tailwind,
       technology.mongodb,
+      technology.tailwind,
     ],
     screenshots: [
       "/projects/forfeitgg/forfeitgg_showcase_1.png",
@@ -167,7 +168,7 @@ const workItemsById = {
     logo: "/project-logos/volume-booster-logo.svg",
     screenshots: ["/projects/volume-booster/volume-booster-showcase.webp"],
     repository: "https://github.com/Pqteras/volume-booster-extension",
-    technologies: [technology.typescript],
+    technologies: [technology.typescript, technology.tailwind],
   },
   discordstamps: {
     id: "discordstamps",
@@ -178,11 +179,10 @@ const workItemsById = {
     website: "https://discordstamps.vercel.app/",
     repository: "https://github.com/Pqteras/discord-timestamps",
     technologies: [
-      technology.react,
+      technology.vite,
       technology.javascript,
       technology.tailwind,
       technology.sass,
-      technology.vite,
     ],
   },
   superenchants: {

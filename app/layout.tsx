@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Outfit } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import PortfolioShell from "./components/PortfolioShell/PortfolioShell";
+import ToastProvider from "./components/Toast/ToastProvider";
 import { thegora } from "./fonts/thegora";
 import {
   SITE_DESCRIPTION,
@@ -42,6 +43,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${outfit.className} ${thegora.variable}`}>
         <PortfolioShell>{children}</PortfolioShell>
+        <ToastProvider />
         <Analytics />
         <SpeedInsights />
       </body>

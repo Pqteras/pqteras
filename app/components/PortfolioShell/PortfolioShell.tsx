@@ -15,6 +15,7 @@ import GlitchNameHeading from "../GlitchNameHeading/GlitchNameHeading";
 import SocialIcons from "../SocialIcons/SocialIcons";
 import Status from "../Status/Status";
 import Tabs from "../Tabs/Tabs";
+import { useAppViewport } from "../../hooks/useAppViewport";
 import { useCursorGlow } from "../../hooks/useCursorGlow";
 import { createHomeMotion } from "../../motion/homeMotion";
 
@@ -40,6 +41,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
   });
   const motionConfig = createHomeMotion(reduceMotion);
   const expanded = isWork || isExpandingToWork;
+  useAppViewport(expanded);
 
   useEffect(() => {
     if (!isExpandingToWork) return;
@@ -68,8 +70,12 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
     const modifiedClick =
       event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
 
-    if (href === "/" && isExpandingToWork && !modifiedClick) {
-      event.preventDefault();
+    if (
+      href !== "/work" &&
+      isExpandingToWork &&
+      !modifiedClick &&
+      event.button === 0
+    ) {
       setIsExpandingToWork(false);
       return;
     }
@@ -125,7 +131,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isVisible ? 1 : 0 }}
                 exit={{ opacity: 0 }}
-                className="pointer-events-none fixed z-50 hidden h-3 w-3 rounded-full bg-yellow-300/70 shadow-lg shadow-yellow-300/30 md:block"
+                className="pointer-events-none fixed z-50 hidden h-3 w-3 rounded-full bg-yellow-300/50 shadow-lg shadow-yellow-300/30 md:block"
                 style={{
                   left: springX,
                   top: springY,
@@ -139,7 +145,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
         </AnimatePresence>
 
         <div
-          className={`relative z-10 flex min-h-dvh items-center justify-center ${
+          className={`relative z-10 flex min-h-(--app-viewport-height) items-center justify-center ${
             expanded ? "p-0" : "px-4 py-8 pb-28 md:px-6"
           }`}
         >
@@ -149,7 +155,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
             animate={{ borderRadius: expanded ? 0 : 12 }}
             transition={shellTransition}
             className={`relative flex w-full flex-col overflow-hidden border border-white/5 bg-surface shadow-lg shadow-yellow-400/5 ${
-              expanded ? "h-dvh max-w-none" : "max-w-2xl"
+              expanded ? "h-(--app-viewport-height) max-w-none" : "max-w-2xl"
             }`}
           >
             <motion.header
@@ -241,7 +247,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
           variants={motionConfig.dock}
           initial="hidden"
           animate="visible"
-          className="fixed bottom-6 left-1/2 z-200 -translate-x-1/2 transform-gpu"
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 z-200 -translate-x-1/2 transform-gpu"
         >
           <Tabs
             activeHref={isExpandingToWork ? "/work" : pathname}
