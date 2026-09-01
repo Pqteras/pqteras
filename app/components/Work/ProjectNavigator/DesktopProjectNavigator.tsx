@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useRef, useState, type KeyboardEvent } from "react";
 import DesktopProjectMarker from "./DesktopProjectMarker";
 import type { ProjectNavigatorViewProps } from "./types";
 import useDesktopNavigatorMotion from "./useDesktopNavigatorMotion";
@@ -16,9 +16,10 @@ const DesktopProjectNavigator = ({
   const [focusVisibleIndex, setFocusVisibleIndex] = useState<number | null>(
     null,
   );
-  const [rovingIndex, setRovingIndex] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const activeIndex = items.findIndex((item) => item.id === activeId);
+  const rovingIndex = focusedIndex ?? (activeIndex >= 0 ? activeIndex : 0);
   const {
     hoveredIndex,
     pointerY,
@@ -32,10 +33,6 @@ const DesktopProjectNavigator = ({
   });
   const expandedIndex = hoveredIndex ?? focusVisibleIndex;
 
-  useEffect(() => {
-    if (activeIndex >= 0) setRovingIndex(activeIndex);
-  }, [activeIndex]);
-
   const handleMarkerKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
@@ -44,7 +41,7 @@ const DesktopProjectNavigator = ({
     if (targetIndex === null) return;
 
     event.preventDefault();
-    setRovingIndex(targetIndex);
+    setFocusedIndex(targetIndex);
     buttonRefs.current[targetIndex]?.focus();
   };
 
@@ -55,6 +52,7 @@ const DesktopProjectNavigator = ({
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) {
           setFocusVisibleIndex(null);
+          setFocusedIndex(null);
         }
       }}
     >
@@ -82,7 +80,7 @@ const DesktopProjectNavigator = ({
             }}
             tabIndex={rovingIndex === index ? 0 : -1}
             onFocus={(event) => {
-              setRovingIndex(index);
+              setFocusedIndex(index);
               setFocusVisibleIndex(
                 event.currentTarget.matches(":focus-visible") ? index : null,
               );

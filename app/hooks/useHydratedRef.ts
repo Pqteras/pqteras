@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, type RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 type UseHydratedRefResult<T extends HTMLElement> = {
   ref: RefObject<T | null>;
@@ -17,14 +17,14 @@ export const useHydratedRef = <T extends HTMLElement>(): UseHydratedRefResult<T>
   const hasHydratedRef = useRef(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const setRef = useCallback((node: T | null) => {
+  const setRef = (node: T | null) => {
     ref.current = node;
 
     if (node && !hasHydratedRef.current) {
       hasHydratedRef.current = true;
       setIsHydrated(true);
     }
-  }, []);
+  };
 
   return { ref, setRef, isHydrated };
 };

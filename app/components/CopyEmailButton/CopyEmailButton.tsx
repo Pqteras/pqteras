@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "motion/react";
-import { useCallback, useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { FaCheck, FaCopy, FaEnvelope } from "react-icons/fa";
 import { CONTACT_EMAIL } from "../../utils/siteMetadata";
 import { showSuccessToast } from "../../utils/toast";
@@ -22,7 +22,7 @@ const CopyEmailButton = ({
 }: CopyEmailButtonProps) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = useCallback(async () => {
+  const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
       setCopied(true);
@@ -31,16 +31,13 @@ const CopyEmailButton = ({
     } catch {
       setCopied(false);
     }
-  }, []);
+  };
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLButtonElement>) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      void handleCopy();
-    },
-    [handleCopy],
-  );
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    void handleCopy();
+  };
 
   if (variant === "inline") {
     return (

@@ -3,15 +3,20 @@
 import Lenis from "lenis";
 import {
   motion,
+  useMotionTemplate,
   useReducedMotion,
-  useScroll,
   useTransform,
 } from "motion/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ProjectChapter from "../components/Work/ProjectChapter";
 import ProjectGallery from "../components/Work/ProjectGallery";
 import ProjectNavigator from "../components/Work/ProjectNavigator";
+import {
+  useWorkScroll,
+  WorkScrollProvider,
+} from "../context/WorkScrollContext";
+import { useActiveWorkProject } from "../hooks/useActiveWorkProject";
 import { useHydratedRef } from "../hooks/useHydratedRef";
 import {
   workItems,
@@ -43,6 +48,20 @@ const heroItemVariants = {
   },
 };
 
+const ScrollProgressLabel = () => {
+  const { scrollYProgress } = useWorkScroll();
+  const progressPercent = useTransform(scrollYProgress, (progress) =>
+    Math.round(progress * 100),
+  );
+  const progressLabel = useMotionTemplate`${progressPercent}%`;
+
+  return (
+    <motion.span className="w-7 text-center text-[10px] tabular-nums text-white/35">
+      {progressLabel}
+    </motion.span>
+  );
+};
+
 const WorkLayout = () => {
   const {
     ref: scrollContainer,
@@ -59,16 +78,16 @@ const WorkLayout = () => {
   const [activeProjectId, setActiveProjectId] =
     useState<WorkItemId | null>(null);
   const reduceMotion = useReducedMotion() ?? false;
-  const { scrollYProgress } = useScroll(
-    isScrollContainerReady ? { container: scrollContainer } : {},
-  );
-  const progressLabel = useTransform(
-    scrollYProgress,
-    (progress) => `${Math.round(progress * 100)}%`,
-  );
+  const isScrollReady = isScrollContainerReady && isScrollContentReady;
+
+  useActiveWorkProject({
+    scrollContainer,
+    isReady: isScrollReady,
+    onActiveChange: setActiveProjectId,
+  });
 
   useEffect(() => {
-    if (!isScrollContainerReady || !isScrollContentReady) return;
+    if (!isScrollReady) return;
 
     const wrapper = scrollContainer.current;
     const content = scrollContent.current;
@@ -111,101 +130,97 @@ const WorkLayout = () => {
       desktopQuery.removeEventListener("change", syncScrollEngine);
       destroyLenis();
     };
-  }, [isScrollContainerReady, isScrollContentReady, scrollContainer, scrollContent]);
+  }, [isScrollReady, scrollContainer, scrollContent]);
 
-  useEffect(() => {
-    if (!isScrollContainerReady || !isScrollContentReady) return;
+  const navigateToProject = (id: WorkItemId) => {
+    const target = scrollContent.current?.querySelector<HTMLElement>(
+      `[data-work-project="${id}"]`,
+    );
+    if (!target) return;
 
-    const wrapper = scrollContainer.current;
-    const content = scrollContent.current;
-    if (!wrapper || !content) return;
-
-    let animationFrame = 0;
-
-    const updateActiveProject = () => {
-      const wrapperBounds = wrapper.getBoundingClientRect();
-      const midpoint = wrapperBounds.top + wrapper.clientHeight / 2;
-      let nextActiveId: WorkItemId | null = null;
-
-      for (const item of workItems) {
-        const chapter = content.querySelector<HTMLElement>(
-          `[data-work-project="${item.id}"]`,
-        );
-        if (!chapter) continue;
-
-        const chapterBounds = chapter.getBoundingClientRect();
-        if (chapterBounds.top <= midpoint && chapterBounds.bottom >= midpoint) {
-          nextActiveId = item.id;
-          break;
-        }
-      }
-
-      setActiveProjectId((current) =>
-        current === nextActiveId ? current : nextActiveId,
-      );
-    };
-
-    const scheduleActiveProjectUpdate = () => {
-      window.cancelAnimationFrame(animationFrame);
-      animationFrame = window.requestAnimationFrame(updateActiveProject);
-    };
-
-    const resizeObserver = new ResizeObserver(scheduleActiveProjectUpdate);
-    resizeObserver.observe(wrapper);
-    resizeObserver.observe(content);
-    wrapper.addEventListener("scroll", scheduleActiveProjectUpdate, {
-      passive: true,
-    });
-    scheduleActiveProjectUpdate();
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      resizeObserver.disconnect();
-      wrapper.removeEventListener("scroll", scheduleActiveProjectUpdate);
-    };
-  }, [isScrollContainerReady, isScrollContentReady, scrollContainer, scrollContent]);
-
-  const navigateToProject = useCallback(
-    (id: WorkItemId) => {
-      const target = scrollContent.current?.querySelector<HTMLElement>(
-        `[data-work-project="${id}"]`,
-      );
-      if (!target) return;
-
-      const lenis = lenisRef.current;
-      if (lenis) {
-        lenis.scrollTo(target, {
-          immediate: reduceMotion,
-          duration: reduceMotion ? undefined : 1.05,
-          easing: (value) => 1 - Math.pow(1 - value, 4),
-        });
-        return;
-      }
-
-      target.scrollIntoView({
-        behavior: reduceMotion ? "auto" : "smooth",
-        block: "start",
+    const lenis = lenisRef.current;
+    if (lenis) {
+      lenis.scrollTo(target, {
+        immediate: reduceMotion,
+        duration: reduceMotion ? undefined : 1.05,
+        easing: (value) => 1 - Math.pow(1 - value, 4),
       });
-    },
-    [reduceMotion, scrollContent],
-  );
+      return;
+    }
 
-  const handleNavigatorOpenChange = useCallback((open: boolean) => {
+    target.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
+  const handleNavigatorOpenChange = (open: boolean) => {
     if (open) lenisRef.current?.stop();
     else lenisRef.current?.start();
-  }, []);
+  };
 
-  const openGallery = useCallback((item: WorkItem) => {
+  const openGallery = (item: WorkItem) => {
     setGallery({ item, activeIndex: 0 });
-  }, []);
+  };
 
-  const closeGallery = useCallback(() => {
+  const closeGallery = () => {
     setGallery(null);
-  }, []);
+  };
 
-  const setActiveIndex = useCallback((activeIndex: number) => {
+  const setActiveIndex = (activeIndex: number) => {
     setGallery((current) => (current ? { ...current, activeIndex } : null));
-  }, []);
+  };
+
+  return (
+    <WorkScrollProvider
+      scrollContainer={scrollContainer}
+      isScrollContainerReady={isScrollReady}
+    >
+      <WorkLayoutScrollUI
+        setScrollContainerRef={setScrollContainerRef}
+        setScrollContentRef={setScrollContentRef}
+        activeProjectId={activeProjectId}
+        reduceMotion={reduceMotion}
+        isScrollReady={isScrollReady}
+        navigateToProject={navigateToProject}
+        handleNavigatorOpenChange={handleNavigatorOpenChange}
+        openGallery={openGallery}
+        closeGallery={closeGallery}
+        setActiveIndex={setActiveIndex}
+        gallery={gallery}
+      />
+    </WorkScrollProvider>
+  );
+};
+
+type WorkLayoutScrollUIProps = {
+  setScrollContainerRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
+  setScrollContentRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
+  activeProjectId: WorkItemId | null;
+  reduceMotion: boolean;
+  isScrollReady: boolean;
+  navigateToProject: (id: WorkItemId) => void;
+  handleNavigatorOpenChange: (open: boolean) => void;
+  openGallery: (item: WorkItem) => void;
+  closeGallery: () => void;
+  setActiveIndex: (activeIndex: number) => void;
+  gallery: GalleryState | null;
+};
+
+const WorkLayoutScrollUI = ({
+  setScrollContainerRef,
+  setScrollContentRef,
+  activeProjectId,
+  reduceMotion,
+  isScrollReady,
+  navigateToProject,
+  handleNavigatorOpenChange,
+  openGallery,
+  closeGallery,
+  setActiveIndex,
+  gallery,
+}: WorkLayoutScrollUIProps) => {
+  const { scrollYProgress } = useWorkScroll();
 
   return (
     <>
@@ -233,9 +248,7 @@ const WorkLayout = () => {
               className="absolute inset-0 bg-yellow-300"
             />
           </div>
-          <motion.span className="w-7 text-center text-[10px] tabular-nums text-white/35">
-            {progressLabel}
-          </motion.span>
+          <ScrollProgressLabel />
         </div>
 
         <ProjectNavigator
@@ -306,9 +319,9 @@ const WorkLayout = () => {
                 item={item}
                 index={index}
                 total={workItems.length}
-                scrollContainer={scrollContainer}
-                isScrollContainerReady={isScrollContainerReady}
+                isScrollContainerReady={isScrollReady}
                 onOpenGallery={openGallery}
+                priorityImage={index === 0}
               />
             ))}
           </div>

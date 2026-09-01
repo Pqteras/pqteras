@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type UseMobileProjectTrayOptions = {
   activeIndex: number;
@@ -15,28 +15,36 @@ const useMobileProjectTray = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const onOpenChangeRef = useRef(onOpenChange);
 
-  const setTrayOpen = useCallback(
-    (nextOpen: boolean) => {
-      setOpen(nextOpen);
-      onOpenChange(nextOpen);
-    },
-    [onOpenChange],
-  );
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  });
 
-  const openTray = useCallback(() => setTrayOpen(true), [setTrayOpen]);
-  const closeTray = useCallback(() => setTrayOpen(false), [setTrayOpen]);
+  const setTrayOpen = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    onOpenChangeRef.current(nextOpen);
+  };
+
+  const openTray = () => setTrayOpen(true);
+  const closeTray = () => setTrayOpen(false);
+  const closeTrayRef = useRef(closeTray);
+
+  useEffect(() => {
+    closeTrayRef.current = closeTray;
+  });
 
   useEffect(() => {
     if (!open) return;
 
+    const trigger = triggerRef.current;
     const focusTarget = itemRefs.current[activeIndex >= 0 ? activeIndex : 0];
     const focusFrame = window.requestAnimationFrame(() => focusTarget?.focus());
 
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        closeTray();
+        closeTrayRef.current();
         return;
       }
 
@@ -65,20 +73,20 @@ const useMobileProjectTray = ({
     return () => {
       window.cancelAnimationFrame(focusFrame);
       document.removeEventListener("keydown", handleKeyDown);
-      if (triggerRef.current?.isConnected) triggerRef.current.focus();
+      if (trigger?.isConnected) trigger.focus();
     };
-  }, [activeIndex, closeTray, open]);
+  }, [activeIndex, open]);
 
   useEffect(() => {
     const desktopQuery = window.matchMedia("(min-width: 768px)");
     const handleBreakpointChange = (event: MediaQueryListEvent) => {
-      if (event.matches && open) closeTray();
+      if (event.matches && open) closeTrayRef.current();
     };
 
     desktopQuery.addEventListener("change", handleBreakpointChange);
     return () =>
       desktopQuery.removeEventListener("change", handleBreakpointChange);
-  }, [closeTray, open]);
+  }, [open]);
 
   return {
     open,

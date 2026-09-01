@@ -1,7 +1,7 @@
 "use client";
 
 import { useMotionValue, useSpring } from "motion/react";
-import { useCallback, useEffect, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import {
   clamp,
   MAX_MARKER_WIDTH,
@@ -18,6 +18,7 @@ const useDesktopNavigatorMotion = ({
   reduceMotion,
 }: UseDesktopNavigatorMotionOptions) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const hoveredIndexRef = useRef<number | null>(null);
   const pointerY = useMotionValue(-1);
   const rawTooltipX = useMotionValue(0);
   const rawTooltipY = useMotionValue(0);
@@ -32,14 +33,15 @@ const useDesktopNavigatorMotion = ({
     mass: 0.5,
   });
 
-  const resetMotion = useCallback(() => {
-    pointerY.set(-1);
-    rawTooltipX.set(0);
-    rawTooltipY.set(0);
-    setHoveredIndex(null);
-  }, [pointerY, rawTooltipX, rawTooltipY]);
-
   useEffect(() => {
+    const resetMotion = () => {
+      pointerY.set(-1);
+      rawTooltipX.set(0);
+      rawTooltipY.set(0);
+      hoveredIndexRef.current = null;
+      setHoveredIndex(null);
+    };
+
     const handleWindowPointerOut = (event: globalThis.PointerEvent) => {
       if (!event.relatedTarget) resetMotion();
     };
@@ -56,7 +58,7 @@ const useDesktopNavigatorMotion = ({
       window.removeEventListener("blur", resetMotion);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [resetMotion]);
+  }, [pointerY, rawTooltipX, rawTooltipY]);
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -68,7 +70,11 @@ const useDesktopNavigatorMotion = ({
     );
 
     pointerY.set(localY);
-    setHoveredIndex(nextIndex);
+
+    if (nextIndex !== hoveredIndexRef.current) {
+      hoveredIndexRef.current = nextIndex;
+      setHoveredIndex(nextIndex);
+    }
 
     if (reduceMotion) {
       rawTooltipX.set(0);
@@ -87,13 +93,21 @@ const useDesktopNavigatorMotion = ({
     rawTooltipY.set(clamp((localY - rowCenter) * 0.75, -6, 6));
   };
 
+  const handlePointerLeave = () => {
+    pointerY.set(-1);
+    rawTooltipX.set(0);
+    rawTooltipY.set(0);
+    hoveredIndexRef.current = null;
+    setHoveredIndex(null);
+  };
+
   return {
     hoveredIndex,
     pointerY,
     tooltipX,
     tooltipY,
     handlePointerMove,
-    handlePointerLeave: resetMotion,
+    handlePointerLeave,
   };
 };
 

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import { usePortfolioOverlay } from "../PortfolioShell/PortfolioShell";
 import type { WorkItem } from "../../utils/workData";
@@ -30,14 +30,29 @@ const ProjectGallery = ({
   const setOverlayOpen = usePortfolioOverlay();
   const reduceMotion = useReducedMotion() ?? false;
   const screenshots = item?.screenshots ?? [];
+  const onActiveIndexChangeRef = useRef(onActiveIndexChange);
+  const onCloseRef = useRef(onClose);
+  const activeIndexRef = useRef(activeIndex);
+  const screenshotCountRef = useRef(screenshots.length);
 
-  const showPrevious = useCallback(() => {
-    onActiveIndexChange(activeIndex === 0 ? screenshots.length - 1 : activeIndex - 1);
-  }, [activeIndex, onActiveIndexChange, screenshots.length]);
+  useEffect(() => {
+    onActiveIndexChangeRef.current = onActiveIndexChange;
+    onCloseRef.current = onClose;
+    activeIndexRef.current = activeIndex;
+    screenshotCountRef.current = screenshots.length;
+  });
 
-  const showNext = useCallback(() => {
-    onActiveIndexChange(activeIndex === screenshots.length - 1 ? 0 : activeIndex + 1);
-  }, [activeIndex, onActiveIndexChange, screenshots.length]);
+  const showPrevious = () => {
+    const count = screenshotCountRef.current;
+    const index = activeIndexRef.current;
+    onActiveIndexChangeRef.current(index === 0 ? count - 1 : index - 1);
+  };
+
+  const showNext = () => {
+    const count = screenshotCountRef.current;
+    const index = activeIndexRef.current;
+    onActiveIndexChangeRef.current(index === count - 1 ? 0 : index + 1);
+  };
 
   useEffect(() => {
     setOverlayOpen(Boolean(item));
@@ -62,14 +77,18 @@ const ProjectGallery = ({
     if (!item) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-      if (event.key === "ArrowLeft" && screenshots.length > 1) showPrevious();
-      if (event.key === "ArrowRight" && screenshots.length > 1) showNext();
+      if (event.key === "Escape") onCloseRef.current();
+      if (event.key === "ArrowLeft" && screenshotCountRef.current > 1) {
+        showPrevious();
+      }
+      if (event.key === "ArrowRight" && screenshotCountRef.current > 1) {
+        showNext();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [item, onClose, screenshots.length, showNext, showPrevious]);
+  }, [item]);
 
   if (!mounted) return null;
 

@@ -1,14 +1,11 @@
 "use client";
 
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import { type RefObject } from "react";
+import { useState } from "react";
 import { FaExternalLinkAlt, FaGithub, FaImages } from "react-icons/fa";
+import { useWorkScroll } from "../../context/WorkScrollContext";
+import { useChapterParallax } from "../../hooks/useChapterParallax";
 import { useHydratedRef } from "../../hooks/useHydratedRef";
 import type { WorkItem } from "../../utils/workData";
 
@@ -16,9 +13,9 @@ type ProjectChapterProps = {
   item: WorkItem;
   index: number;
   total: number;
-  scrollContainer: RefObject<HTMLDivElement | null>;
   isScrollContainerReady: boolean;
   onOpenGallery: (item: WorkItem) => void;
+  priorityImage?: boolean;
 };
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -128,44 +125,38 @@ const ProjectChapter = ({
   item,
   index,
   total,
-  scrollContainer,
   isScrollContainerReady,
   onOpenGallery,
+  priorityImage = false,
 }: ProjectChapterProps) => {
   const {
-    ref: chapterRef,
     setRef: setChapterRef,
     isHydrated: isChapterReady,
   } = useHydratedRef<HTMLElement>();
+  const [chapterElement, setChapterElement] = useState<HTMLElement | null>(null);
+  const { scrollContainer } = useWorkScroll();
   const reduceMotion = useReducedMotion() ?? false;
   const direction = index % 2 ? 1 : -1;
   const canTrackScroll = isScrollContainerReady && isChapterReady;
-  const { scrollYProgress } = useScroll(
-    canTrackScroll
-      ? {
-          container: scrollContainer,
-          target: chapterRef,
-          offset: ["start end", "end start"],
-        }
-      : {},
-  );
-  const y = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [56, 0, 0, -36]);
-  const scale = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0.98, 1, 1, 0.985],
-  );
+  const parallax = useChapterParallax(chapterElement, {
+    enabled: canTrackScroll,
+  });
   const scrollMotionStyle =
-    canTrackScroll && !reduceMotion ? { y, scale } : undefined;
+    parallax && !reduceMotion ? { y: parallax.y, scale: parallax.scale } : undefined;
   const headingId = `project-${item.id}-heading`;
   const preview = item.screenshots?.[0];
   const viewport = isScrollContainerReady
     ? ({ root: scrollContainer, once: true, amount: 0.22 } as const)
     : ({ once: true, amount: 0.22 } as const);
 
+  const handleChapterRef = (node: HTMLElement | null) => {
+    setChapterRef(node);
+    setChapterElement(node);
+  };
+
   return (
     <motion.article
-      ref={setChapterRef}
+      ref={handleChapterRef}
       id={`work-project-${item.id}`}
       data-work-project={item.id}
       aria-labelledby={headingId}
@@ -293,6 +284,7 @@ const ProjectChapter = ({
                 src={preview}
                 alt={`${item.name} project preview`}
                 fill
+                priority={priorityImage}
                 sizes="(max-width: 768px) 100vw, 52vw"
                 className="object-cover"
               />
