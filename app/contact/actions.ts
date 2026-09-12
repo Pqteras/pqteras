@@ -12,10 +12,20 @@ const COOLDOWN_COOKIE = "contact_cooldown";
 const COOLDOWN_MS = 5 * 60 * 1000;
 const MIN_FILL_MS = 3000;
 
+/** Strips CR/LF and other controls that could break email metadata. */
+const stripControlChars = (value: string) =>
+  value.replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
+
 const contactSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(80),
+  name: z
+    .string()
+    .transform(stripControlChars)
+    .pipe(z.string().min(1, "Name is required").max(80)),
   email: z.string().trim().email("Invalid email").max(254),
-  subject: z.string().trim().min(1, "Subject is required").max(120),
+  subject: z
+    .string()
+    .transform(stripControlChars)
+    .pipe(z.string().min(1, "Subject is required").max(120)),
   message: z
     .string()
     .trim()
@@ -109,7 +119,7 @@ export const submitContactForm = async (
     });
 
     if (error) {
-      console.error("Resend error:", error);
+      console.error("Resend error:", error.name, error.message);
       return { status: "error", message: genericError };
     }
 

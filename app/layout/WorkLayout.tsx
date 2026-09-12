@@ -18,15 +18,15 @@ import {
 } from "../context/WorkScrollContext";
 import { useActiveWorkProject } from "../hooks/useActiveWorkProject";
 import { useHydratedRef } from "../hooks/useHydratedRef";
-import {
-  workItems,
-  type WorkItem,
-  type WorkItemId,
-} from "../utils/workData";
+import type { WorkItem, WorkItemId } from "../utils/workData";
 
 type GalleryState = {
   item: WorkItem;
   activeIndex: number;
+};
+
+type WorkLayoutProps = {
+  items: WorkItem[];
 };
 
 const heroVariants = {
@@ -62,7 +62,7 @@ const ScrollProgressLabel = () => {
   );
 };
 
-const WorkLayout = () => {
+const WorkLayout = ({ items }: WorkLayoutProps) => {
   const {
     ref: scrollContainer,
     setRef: setScrollContainerRef,
@@ -177,6 +177,7 @@ const WorkLayout = () => {
       isScrollContainerReady={isScrollReady}
     >
       <WorkLayoutScrollUI
+        items={items}
         setScrollContainerRef={setScrollContainerRef}
         setScrollContentRef={setScrollContentRef}
         activeProjectId={activeProjectId}
@@ -194,6 +195,7 @@ const WorkLayout = () => {
 };
 
 type WorkLayoutScrollUIProps = {
+  items: WorkItem[];
   setScrollContainerRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
   setScrollContentRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
   activeProjectId: WorkItemId | null;
@@ -208,6 +210,7 @@ type WorkLayoutScrollUIProps = {
 };
 
 const WorkLayoutScrollUI = ({
+  items,
   setScrollContainerRef,
   setScrollContentRef,
   activeProjectId,
@@ -252,7 +255,7 @@ const WorkLayoutScrollUI = ({
         </div>
 
         <ProjectNavigator
-          items={workItems}
+          items={items}
           activeId={activeProjectId}
           onSelect={navigateToProject}
           onMobileOpenChange={handleNavigatorOpenChange}
@@ -313,12 +316,12 @@ const WorkLayoutScrollUI = ({
               </motion.div>
             </motion.section>
 
-            {workItems.map((item, index) => (
+            {items.map((item, index) => (
               <ProjectChapter
                 key={item.id}
                 item={item}
                 index={index}
-                total={workItems.length}
+                total={items.length}
                 isScrollContainerReady={isScrollReady}
                 onOpenGallery={openGallery}
                 priorityImage={index === 0}

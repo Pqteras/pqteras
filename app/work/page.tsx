@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import WorkLayout from "../layout/WorkLayout";
+import { getWorkItems } from "../utils/getWorkItems";
 import {
   SITE_NAME,
   WORK_PAGE_DESCRIPTION,
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
   twitter: siteTwitter(workTitle, WORK_PAGE_DESCRIPTION),
 };
 
-const Work = () => <WorkLayout />;
+const Work = () => {
+  const items = getWorkItems();
+  return <WorkLayout items={items} />;
+};
 
 export default Work;

@@ -5,9 +5,11 @@ export type Technology = {
 
 export const WORK_ITEM_ORDER = [
   "docrivo",
+  "my-brew",
   "lamiuth",
   "forfeitgg",
   "volume-booster",
+  "whatsapp-sound-monitor",
   "lawnetwork",
   "discordstamps",
   "superenchants",
@@ -15,18 +17,38 @@ export const WORK_ITEM_ORDER = [
 
 export type WorkItemId = (typeof WORK_ITEM_ORDER)[number];
 
-export type WorkItem = {
+type WorkItemBase = {
   id: WorkItemId;
   name: string;
   description: string;
   accent: string;
   technologies: Technology[];
   logo?: string;
-  invertLogo?: boolean;
+  logoClassName?: string;
   website?: string;
   repository?: string;
+};
+
+/**
+ * Authoring shape: point at a public folder; images are resolved server-side.
+ */
+export type WorkItemSource = WorkItemBase & {
+  screenshotFolder?: string;
+};
+
+/**
+ * Consumer shape used by the work UI after screenshots are resolved.
+ */
+export type WorkItem = WorkItemBase & {
   screenshots?: string[];
 };
+
+export const WORK_LOGO_BASE_CLASS = "h-full w-full object-contain";
+
+export const getWorkLogoClassName = (logoClassName?: string) =>
+  logoClassName
+    ? `${WORK_LOGO_BASE_CLASS} ${logoClassName}`
+    : WORK_LOGO_BASE_CLASS;
 
 const technology = {
   javascript: {
@@ -81,6 +103,10 @@ const technology = {
     name: "Electron",
     icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/electron/electron-original.svg",
   },
+  python: {
+    name: "Python",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
+  },
 } satisfies Record<string, Technology>;
 
 const workItemsById = {
@@ -97,13 +123,7 @@ const workItemsById = {
       technology.sqlcipher,
       technology.tailwind,
     ],
-    screenshots: [
-      "/projects/docrivo/docrivo_main.png",
-      "/projects/docrivo/docrivo_staff.png",
-      "/projects/docrivo/docrivo_services.png",
-      "/projects/docrivo/docrivo_analytics.png",
-      "/projects/docrivo/docrivo_analytics_2.png",
-    ],
+    screenshotFolder: "/projects/docrivo",
   },
   lamiuth: {
     id: "lamiuth",
@@ -113,7 +133,7 @@ const workItemsById = {
     accent: "text-red-400",
     logo: "/project-logos/lamiuth-logo.png",
     website: "https://www.lamiuth.com/",
-    screenshots: ["/projects/lamiuth/lamiuth-showcase.jpg"],
+    screenshotFolder: "/projects/lamiuth",
     technologies: [
       technology.next,
       technology.typescript,
@@ -127,7 +147,7 @@ const workItemsById = {
     description: "Official website for the LawNetwork organization.",
     accent: "text-orange-400",
     logo: "/project-logos/lawnetwork-logo.png",
-    invertLogo: true,
+    logoClassName: "invert",
     website: "https://www.lawnetwork.eu",
     technologies: [
       technology.vite,
@@ -151,12 +171,22 @@ const workItemsById = {
       technology.mongodb,
       technology.tailwind,
     ],
-    screenshots: [
-      "/projects/forfeitgg/forfeitgg_showcase_1.png",
-      "/projects/forfeitgg/forfeitgg_showcase_2.png",
-      "/projects/forfeitgg/forfeitgg_showcase_3.png",
-      "/projects/forfeitgg/forfeitgg_showcase_4.png",
-      "/projects/forfeitgg/forfeitgg_showcase_5.png",
+    screenshotFolder: "/projects/forfeitgg",
+  },
+  "my-brew": {
+    id: "my-brew",
+    name: "My Brew",
+    description:
+      "Showcase-only digital menu experience for a coffee bar, built for in-store QR scans. Guests land on a branded hero, then browse the full menu with smooth motion and bilingual support. This is a design and engineering portfolio piece, not the coffee bar's official website.",
+    accent: "text-amber-300",
+    logo: "/project-logos/my-brew-logo.jpg",
+    logoClassName: "rounded-sm",
+    screenshotFolder: "/projects/mybrew",
+    website: "https://my-brew-coffee.vercel.app/",
+    technologies: [
+      technology.next,
+      technology.typescript,
+      technology.tailwind,
     ],
   },
   "volume-booster": {
@@ -166,9 +196,18 @@ const workItemsById = {
       "Chrome extension for when 100% isn't loud enough. Boosts the current tab up to 670%. Each tab keeps its own level until you close it.",
     accent: "text-lime-300",
     logo: "/project-logos/volume-booster-logo.svg",
-    screenshots: ["/projects/volume-booster/volume-booster-showcase.webp"],
+    screenshotFolder: "/projects/volume-booster",
     repository: "https://github.com/Pqteras/volume-booster-extension",
     technologies: [technology.typescript, technology.tailwind],
+  },
+  "whatsapp-sound-monitor": {
+    id: "whatsapp-sound-monitor",
+    name: "WhatsApp Sound Monitor",
+    description:
+      "Independent Windows utility that restores audible WhatsApp Desktop alerts when OS notifications are muted. It watches unread badge counts through UI Automation, runs from the system tray, and plays a local custom sound with zero network access.",
+    accent: "text-emerald-400",
+    repository: "https://github.com/Pqteras/whatsapp-sound-monitor",
+    technologies: [technology.python],
   },
   discordstamps: {
     id: "discordstamps",
@@ -194,8 +233,11 @@ const workItemsById = {
     repository: "https://github.com/Pqteras/superenchants",
     technologies: [technology.java],
   },
-} satisfies Record<WorkItemId, WorkItem>;
+} satisfies Record<WorkItemId, WorkItemSource>;
 
-export const workItems: WorkItem[] = WORK_ITEM_ORDER.map(
+/**
+ * Ordered work item sources before screenshot folders are resolved.
+ */
+export const workItemSources: WorkItemSource[] = WORK_ITEM_ORDER.map(
   (id) => workItemsById[id],
 );

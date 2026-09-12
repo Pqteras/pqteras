@@ -5,7 +5,7 @@ import { useRef, useState, type KeyboardEvent } from "react";
 import DesktopProjectMarker from "./DesktopProjectMarker";
 import type { ProjectNavigatorViewProps } from "./types";
 import useDesktopNavigatorMotion from "./useDesktopNavigatorMotion";
-import { getNavigationTarget } from "./utils";
+import { getNavigationTarget, ROW_HEIGHT } from "./utils";
 
 const DesktopProjectNavigator = ({
   items,
@@ -60,7 +60,8 @@ const DesktopProjectNavigator = ({
         Projects
       </span>
       <div
-        className="h-28 w-60"
+        className="w-60"
+        style={{ height: items.length * ROW_HEIGHT }}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
       >

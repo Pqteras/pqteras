@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, type RefObject } from "react";
-import { workItems, type WorkItemId } from "../utils/workData";
+import { WORK_ITEM_ORDER, type WorkItemId } from "../utils/workData";
 
 type UseActiveWorkProjectOptions = {
   scrollContainer: RefObject<HTMLDivElement | null>;
@@ -34,9 +34,9 @@ export const useActiveWorkProject = ({
     const syncActiveProject = () => {
       let nextActiveId: WorkItemId | null = null;
 
-      for (const item of workItems) {
-        if (visibleIds.has(item.id)) {
-          nextActiveId = item.id;
+      for (const id of WORK_ITEM_ORDER) {
+        if (visibleIds.has(id)) {
+          nextActiveId = id;
           break;
         }
       }

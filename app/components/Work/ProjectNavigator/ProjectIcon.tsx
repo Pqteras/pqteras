@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { WorkItem } from "../../../utils/workData";
+import { getWorkLogoClassName, type WorkItem } from "../../../utils/workData";
 import { getInitials } from "./utils";
 
 type ProjectIconProps = {
@@ -21,7 +21,7 @@ const ProjectIcon = ({ item, size = "small" }: ProjectIconProps) => {
           alt=""
           width={36}
           height={36}
-          className={`h-full w-full object-contain ${item.invertLogo ? "invert" : ""}`}
+          className={getWorkLogoClassName(item.logoClassName)}
         />
       ) : (
         <span className="text-[10px] font-semibold tracking-tight text-yellow-300">

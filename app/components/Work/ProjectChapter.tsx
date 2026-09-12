@@ -7,7 +7,7 @@ import { FaExternalLinkAlt, FaGithub, FaImages } from "react-icons/fa";
 import { useWorkScroll } from "../../context/WorkScrollContext";
 import { useChapterParallax } from "../../hooks/useChapterParallax";
 import { useHydratedRef } from "../../hooks/useHydratedRef";
-import type { WorkItem } from "../../utils/workData";
+import { getWorkLogoClassName, type WorkItem } from "../../utils/workData";
 
 type ProjectChapterProps = {
   item: WorkItem;
@@ -108,7 +108,7 @@ const ProjectMark = ({
         alt={`${item.name} logo`}
         width={large ? 128 : 48}
         height={large ? 128 : 48}
-        className={`h-full w-full object-contain ${item.invertLogo ? "invert" : ""}`}
+        className={getWorkLogoClassName(item.logoClassName)}
       />
     ) : (
       <span
