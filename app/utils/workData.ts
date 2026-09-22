@@ -4,13 +4,14 @@ export type Technology = {
 };
 
 export const WORK_ITEM_ORDER = [
+  "tichu",
   "docrivo",
   "my-brew",
   "lamiuth",
+  "lawnetwork",
   "forfeitgg",
   "volume-booster",
   "whatsapp-sound-monitor",
-  "lawnetwork",
   "discordstamps",
   "superenchants",
 ] as const;
@@ -110,6 +111,21 @@ const technology = {
 } satisfies Record<string, Technology>;
 
 const workItemsById = {
+  tichu: {
+    id: "tichu",
+    name: "Tichu",
+    description:
+      "Online Tichu for four players. Friends join a room, pass cards, call Tichu, and play a full match on a live table, with accounts, match history, and guest play.",
+    accent: "text-rose-300",
+    logo: "/project-logos/tichu-logo.svg",
+    website: "https://tichu.pasvantiss.com",
+    screenshotFolder: "/projects/tichu",
+    technologies: [
+      technology.next,
+      technology.typescript,
+      technology.tailwind,
+    ],
+  },
   docrivo: {
     id: "docrivo",
     name: "Docrivo",
@@ -145,15 +161,15 @@ const workItemsById = {
     id: "lawnetwork",
     name: "LawNetwork",
     description: "Official website for the LawNetwork organization.",
-    accent: "text-orange-400",
+    accent: "text-white",
     logo: "/project-logos/lawnetwork-logo.png",
     logoClassName: "invert",
-    website: "https://www.lawnetwork.eu",
+    website: "https://lawnetwork.eu",
+    screenshotFolder: "/projects/lawnetwork",
     technologies: [
       technology.vite,
-      technology.javascript,
+      technology.typescript,
       technology.tailwind,
-      technology.sass,
     ],
   },
   forfeitgg: {

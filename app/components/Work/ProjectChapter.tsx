@@ -80,6 +80,12 @@ const chipVariants = {
   },
 };
 
+const primaryActionClassName =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full bg-yellow-300 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-yellow-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#212121]";
+
+const secondaryActionClassName =
+  "inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-yellow-300/60 hover:text-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#212121]";
+
 const getInitials = (name: string) =>
   name
     .split(/\s|\./)
@@ -129,11 +135,11 @@ const ProjectChapter = ({
   onOpenGallery,
   priorityImage = false,
 }: ProjectChapterProps) => {
-  const {
-    setRef: setChapterRef,
-    isHydrated: isChapterReady,
-  } = useHydratedRef<HTMLElement>();
-  const [chapterElement, setChapterElement] = useState<HTMLElement | null>(null);
+  const { setRef: setChapterRef, isHydrated: isChapterReady } =
+    useHydratedRef<HTMLElement>();
+  const [chapterElement, setChapterElement] = useState<HTMLElement | null>(
+    null,
+  );
   const { scrollContainer } = useWorkScroll();
   const reduceMotion = useReducedMotion() ?? false;
   const direction = index % 2 ? 1 : -1;
@@ -142,7 +148,9 @@ const ProjectChapter = ({
     enabled: canTrackScroll,
   });
   const scrollMotionStyle =
-    parallax && !reduceMotion ? { y: parallax.y, scale: parallax.scale } : undefined;
+    parallax && !reduceMotion
+      ? { y: parallax.y, scale: parallax.scale }
+      : undefined;
   const headingId = `project-${item.id}-heading`;
   const preview = item.screenshots?.[0];
   const viewport = isScrollContainerReady
@@ -221,46 +229,59 @@ const ProjectChapter = ({
             ))}
           </motion.ul>
 
-          <motion.div
-            variants={listVariants}
-            className="mt-7 flex flex-wrap gap-2"
-          >
-            {item.website && (
-              <motion.a
-                variants={chipVariants}
-                whileTap={{ scale: 0.98 }}
-                href={item.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-yellow-300/25 bg-yellow-300/10 px-3 py-2 text-sm font-medium text-yellow-300 hover:bg-yellow-300/15"
-              >
-                Visit project <FaExternalLinkAlt size={11} />
-              </motion.a>
-            )}
-            {item.repository && (
-              <motion.a
-                variants={chipVariants}
-                whileTap={{ scale: 0.98 }}
-                href={item.repository}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/4 px-3 py-2 text-sm font-medium text-white/70 hover:border-yellow-300/25 hover:text-yellow-300"
-              >
-                Source <FaGithub size={14} />
-              </motion.a>
-            )}
-            {item.screenshots && (
-              <motion.button
-                variants={chipVariants}
-                whileTap={{ scale: 0.98 }}
-                type="button"
-                onClick={() => onOpenGallery(item)}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/4 px-3 py-2 text-sm font-medium text-white/70 hover:border-yellow-300/25 hover:text-yellow-300"
-              >
-                Gallery <FaImages size={13} />
-              </motion.button>
-            )}
-          </motion.div>
+          {(item.website || item.repository || item.screenshots) && (
+            <motion.div
+              variants={listVariants}
+              className="mt-5 flex flex-wrap items-center gap-2.5 border-t border-white/8 pt-5"
+            >
+              {item.website && (
+                <motion.a
+                  variants={chipVariants}
+                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                  href={item.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={primaryActionClassName}
+                >
+                  <FaExternalLinkAlt size={11} aria-hidden="true" />
+                  Visit project
+                </motion.a>
+              )}
+              {item.repository && (
+                <motion.a
+                  variants={chipVariants}
+                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                  href={item.repository}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={
+                    item.website
+                      ? secondaryActionClassName
+                      : primaryActionClassName
+                  }
+                >
+                  <FaGithub size={14} aria-hidden="true" />
+                  Source
+                </motion.a>
+              )}
+              {item.screenshots && (
+                <motion.button
+                  variants={chipVariants}
+                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                  type="button"
+                  onClick={() => onOpenGallery(item)}
+                  className={
+                    item.website || item.repository
+                      ? secondaryActionClassName
+                      : primaryActionClassName
+                  }
+                >
+                  <FaImages size={13} aria-hidden="true" />
+                  Gallery
+                </motion.button>
+              )}
+            </motion.div>
+          )}
         </motion.div>
 
         <motion.div
