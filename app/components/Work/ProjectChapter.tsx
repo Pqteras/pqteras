@@ -3,10 +3,17 @@
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
-import { FaExternalLinkAlt, FaGithub, FaImages } from "react-icons/fa";
+import {
+  FaCheck,
+  FaExternalLinkAlt,
+  FaGithub,
+  FaImages,
+  FaLink,
+} from "react-icons/fa";
 import { useWorkScroll } from "../../context/WorkScrollContext";
 import { useChapterParallax } from "../../hooks/useChapterParallax";
 import { useHydratedRef } from "../../hooks/useHydratedRef";
+import { showErrorToast, showSuccessToast } from "../../utils/toast";
 import { getWorkLogoClassName, type WorkItem } from "../../utils/workData";
 
 type ProjectChapterProps = {
@@ -127,6 +134,39 @@ const ProjectMark = ({
   </motion.div>
 );
 
+const CopyProjectLinkButton = ({ item }: { item: WorkItem }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/work#${item.id}`,
+      );
+      setCopied(true);
+      showSuccessToast(`Link to ${item.name} copied`);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      showErrorToast("Couldn't copy the link");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleCopy()}
+      className="cursor-pointer rounded-md p-1.5 text-white/30 transition-colors hover:bg-white/5 hover:text-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70"
+      aria-label={`Copy link to ${item.name}`}
+      title="Copy link"
+    >
+      {copied ? (
+        <FaCheck className="text-yellow-300" size={13} />
+      ) : (
+        <FaLink size={13} />
+      )}
+    </button>
+  );
+};
+
 const ProjectChapter = ({
   item,
   index,
@@ -190,12 +230,15 @@ const ProjectChapter = ({
                 {String(index + 1).padStart(2, "0")} /{" "}
                 {String(total).padStart(2, "0")}
               </p>
-              <h2
-                id={headingId}
-                className={`text-3xl font-semibold tracking-tight md:text-4xl ${item.accent}`}
-              >
-                {item.name}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2
+                  id={headingId}
+                  className={`text-3xl font-semibold tracking-tight md:text-4xl ${item.accent}`}
+                >
+                  {item.name}
+                </h2>
+                <CopyProjectLinkButton item={item} />
+              </div>
             </div>
           </motion.div>
 

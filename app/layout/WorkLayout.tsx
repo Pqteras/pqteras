@@ -7,7 +7,7 @@ import {
   useReducedMotion,
   useTransform,
 } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import ProjectChapter from "../components/Work/ProjectChapter";
 import ProjectGallery from "../components/Work/ProjectGallery";
@@ -153,6 +153,22 @@ const WorkLayout = ({ items }: WorkLayoutProps) => {
       block: "start",
     });
   };
+
+  // Chapters scroll inside a custom container, so native #anchor jumps can't reach them.
+  const scrollToHashProject = useEffectEvent(() => {
+    const id = window.location.hash.slice(1);
+    if (items.some((item) => item.id === id)) {
+      navigateToProject(id as WorkItemId);
+    }
+  });
+
+  useEffect(() => {
+    if (!isScrollReady) return;
+
+    scrollToHashProject();
+    window.addEventListener("hashchange", scrollToHashProject);
+    return () => window.removeEventListener("hashchange", scrollToHashProject);
+  }, [isScrollReady]);
 
   const handleNavigatorOpenChange = (open: boolean) => {
     if (open) lenisRef.current?.stop();

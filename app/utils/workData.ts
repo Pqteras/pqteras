@@ -4,12 +4,12 @@ export type Technology = {
 };
 
 export const WORK_ITEM_ORDER = [
+  "forfeitgg",
   "tichu",
   "docrivo",
   "my-brew",
   "lamiuth",
   "lawnetwork",
-  "forfeitgg",
   "volume-booster",
   "whatsapp-sound-monitor",
   "discordstamps",
@@ -174,13 +174,13 @@ const workItemsById = {
   },
   forfeitgg: {
     id: "forfeitgg",
-    name: "ForFeit.GG",
+    name: "FORFEIT.GG",
     description:
-      "League of Legends statistics platform delivering deep match history analytics, champion meta insights, and player progression tracking. Features include leaderboard/ranked ladder tracking, LP progression charts over time, role and champion performance breakdowns, tier lists per patch, and build/rune recommendations based on real data. (Project discontinued due to financial issues.)",
-    accent: "text-yellow-300",
-    logo: "/project-logos/forfeitgg-logo.png",
+      "IT'S BACK! League of Legends stats, the modern way. Ranked history, live game scouting, regional ladders and patch-fresh builds, with every match graded by our own FF Score. Rebuilt and back online, with no plans to forfeit this time.",
+    accent: "text-[#E2D4B0]",
+    logo: "/project-logos/forfeitgg-logo.svg",
     website:
-      "https://discord.com/channels/1339953444588490844/1339960283057356911/1456659654489931827",
+      "https://forfeit.gg",
     technologies: [
       technology.next,
       technology.typescript,
