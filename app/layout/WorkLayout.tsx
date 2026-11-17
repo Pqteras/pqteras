@@ -1,15 +1,11 @@
 "use client";
 
 import Lenis from "lenis";
-import {
-  motion,
-  useMotionTemplate,
-  useReducedMotion,
-  useTransform,
-} from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
-import ProjectChapter from "../components/Work/ProjectChapter";
+import ProjectChapter, {
+  workGutterClassName,
+} from "../components/Work/ProjectChapter";
 import ProjectGallery from "../components/Work/ProjectGallery";
 import ProjectNavigator from "../components/Work/ProjectNavigator";
 import {
@@ -18,6 +14,7 @@ import {
 } from "../context/WorkScrollContext";
 import { useActiveWorkProject } from "../hooks/useActiveWorkProject";
 import { useHydratedRef } from "../hooks/useHydratedRef";
+import { ease, fadeUp } from "../motion/tokens";
 import type { WorkItem, WorkItemId } from "../utils/workData";
 
 type GalleryState = {
@@ -29,38 +26,21 @@ type WorkLayoutProps = {
   items: WorkItem[];
 };
 
-const heroVariants = {
+const HERO_HEADLINE = "Building useful things, one problem at a time.";
+
+const heroVariants: Variants = {
   hidden: {},
-  visible: {
-    transition: {
-      delayChildren: 0.28,
-      staggerChildren: 0.1,
-    },
-  },
+  visible: { transition: { delayChildren: 0.25, staggerChildren: 0.05 } },
 };
 
-const heroItemVariants = {
-  hidden: { opacity: 0, y: 28 },
+const getHeadlineWordVariants = (reduceMotion: boolean): Variants => ({
+  hidden: reduceMotion ? { opacity: 0 } : { y: "110%" },
   visible: {
     opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as const },
+    y: "0%",
+    transition: { duration: reduceMotion ? 0.2 : 0.8, ease: ease.out },
   },
-};
-
-const ScrollProgressLabel = () => {
-  const { scrollYProgress } = useWorkScroll();
-  const progressPercent = useTransform(scrollYProgress, (progress) =>
-    Math.round(progress * 100),
-  );
-  const progressLabel = useMotionTemplate`${progressPercent}%`;
-
-  return (
-    <motion.span className="w-7 text-center text-[10px] tabular-nums text-white/35">
-      {progressLabel}
-    </motion.span>
-  );
-};
+});
 
 const WorkLayout = ({ items }: WorkLayoutProps) => {
   const {
@@ -154,7 +134,7 @@ const WorkLayout = ({ items }: WorkLayoutProps) => {
     });
   };
 
-  // Chapters scroll inside a custom container, so native #anchor jumps can't reach them.
+  // Chapters live in their own scroll container, so #hash links are scrolled manually.
   const scrollToHashProject = useEffectEvent(() => {
     const id = window.location.hash.slice(1);
     if (items.some((item) => item.id === id)) {
@@ -175,14 +155,6 @@ const WorkLayout = ({ items }: WorkLayoutProps) => {
     else lenisRef.current?.start();
   };
 
-  const openGallery = (item: WorkItem) => {
-    setGallery({ item, activeIndex: 0 });
-  };
-
-  const closeGallery = () => {
-    setGallery(null);
-  };
-
   const setActiveIndex = (activeIndex: number) => {
     setGallery((current) => (current ? { ...current, activeIndex } : null));
   };
@@ -192,83 +164,8 @@ const WorkLayout = ({ items }: WorkLayoutProps) => {
       scrollContainer={scrollContainer}
       isScrollContainerReady={isScrollReady}
     >
-      <WorkLayoutScrollUI
-        items={items}
-        setScrollContainerRef={setScrollContainerRef}
-        setScrollContentRef={setScrollContentRef}
-        activeProjectId={activeProjectId}
-        reduceMotion={reduceMotion}
-        isScrollReady={isScrollReady}
-        navigateToProject={navigateToProject}
-        handleNavigatorOpenChange={handleNavigatorOpenChange}
-        openGallery={openGallery}
-        closeGallery={closeGallery}
-        setActiveIndex={setActiveIndex}
-        gallery={gallery}
-      />
-    </WorkScrollProvider>
-  );
-};
-
-type WorkLayoutScrollUIProps = {
-  items: WorkItem[];
-  setScrollContainerRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
-  setScrollContentRef: ReturnType<typeof useHydratedRef<HTMLDivElement>>["setRef"];
-  activeProjectId: WorkItemId | null;
-  reduceMotion: boolean;
-  isScrollReady: boolean;
-  navigateToProject: (id: WorkItemId) => void;
-  handleNavigatorOpenChange: (open: boolean) => void;
-  openGallery: (item: WorkItem) => void;
-  closeGallery: () => void;
-  setActiveIndex: (activeIndex: number) => void;
-  gallery: GalleryState | null;
-};
-
-const WorkLayoutScrollUI = ({
-  items,
-  setScrollContainerRef,
-  setScrollContentRef,
-  activeProjectId,
-  reduceMotion,
-  isScrollReady,
-  navigateToProject,
-  handleNavigatorOpenChange,
-  openGallery,
-  closeGallery,
-  setActiveIndex,
-  gallery,
-}: WorkLayoutScrollUIProps) => {
-  const { scrollYProgress } = useWorkScroll();
-
-  return (
-    <>
       <div className="relative h-full overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-20 h-0.5 bg-white/6 md:hidden"
-          aria-hidden="true"
-        >
-          <motion.div
-            style={{ scaleX: scrollYProgress, transformOrigin: "left" }}
-            className="h-full bg-yellow-300"
-          />
-        </div>
-
-        <div
-          className="pointer-events-none absolute right-3 top-1/2 z-20 hidden -translate-y-1/2 flex-col items-center gap-2 md:flex lg:right-5"
-          aria-hidden="true"
-        >
-          <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">
-            Progress
-          </span>
-          <div className="relative h-28 w-px overflow-hidden bg-white/10">
-            <motion.div
-              style={{ scaleY: scrollYProgress, transformOrigin: "top" }}
-              className="absolute inset-0 bg-yellow-300"
-            />
-          </div>
-          <ScrollProgressLabel />
-        </div>
+        <MobileScrollProgress />
 
         <ProjectNavigator
           items={items}
@@ -283,63 +180,17 @@ const WorkLayoutScrollUI = ({
           className="relative h-full touch-pan-y overflow-x-hidden overflow-y-auto overscroll-y-contain"
         >
           <div ref={setScrollContentRef} className="h-full overflow-x-clip">
-            <motion.section
-              variants={heroVariants}
-              initial={reduceMotion ? false : "hidden"}
-              animate="visible"
-              className="mx-auto flex min-h-full max-w-6xl flex-col justify-center py-12 pl-10 pr-5 md:px-10 md:py-16 lg:px-16"
-            >
-              <motion.p
-                variants={heroItemVariants}
-                className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-yellow-300/70"
-              >
-                Featured work
-              </motion.p>
-              <motion.h2
-                variants={heroItemVariants}
-                className="max-w-3xl text-4xl font-semibold tracking-[-0.03em] text-white md:text-6xl"
-              >
-                Building useful things, one problem at a time.
-              </motion.h2>
-              <motion.div
-                variants={heroItemVariants}
-                className="mt-6 flex items-end justify-between gap-6"
-              >
-                <motion.p
-                  variants={heroItemVariants}
-                  className="max-w-2xl text-base leading-7 text-white/50 md:text-lg"
-                >
-                  Web platforms, desktop applications, and community tools
-                  designed for real-world use.
-                </motion.p>
-                <motion.div
-                  variants={heroItemVariants}
-                  className="hidden items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/30 sm:flex"
-                  aria-hidden="true"
-                >
-                  <motion.span
-                    animate={reduceMotion ? undefined : { y: [0, 4, 0] }}
-                    transition={{
-                      duration: 1.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    Scroll <FaChevronDown size={10} />
-                  </motion.span>
-                </motion.div>
-              </motion.div>
-            </motion.section>
+            <WorkHero reduceMotion={reduceMotion} />
 
             {items.map((item, index) => (
               <ProjectChapter
                 key={item.id}
                 item={item}
                 index={index}
-                total={items.length}
                 isScrollContainerReady={isScrollReady}
-                onOpenGallery={openGallery}
+                onOpenGallery={(target) =>
+                  setGallery({ item: target, activeIndex: 0 })
+                }
                 priorityImage={index === 0}
               />
             ))}
@@ -351,9 +202,63 @@ const WorkLayoutScrollUI = ({
         item={gallery?.item ?? null}
         activeIndex={gallery?.activeIndex ?? 0}
         onActiveIndexChange={setActiveIndex}
-        onClose={closeGallery}
+        onClose={() => setGallery(null)}
       />
-    </>
+    </WorkScrollProvider>
+  );
+};
+
+const MobileScrollProgress = () => {
+  const { scrollYProgress } = useWorkScroll();
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 top-0 z-20 h-0.5 bg-line md:hidden"
+      aria-hidden="true"
+    >
+      <motion.div
+        style={{ scaleX: scrollYProgress, transformOrigin: "left" }}
+        className="h-full bg-accent"
+      />
+    </div>
+  );
+};
+
+const WorkHero = ({ reduceMotion }: { reduceMotion: boolean }) => {
+  const wordVariants = getHeadlineWordVariants(reduceMotion);
+  const supportVariants = fadeUp(reduceMotion, 10);
+  const words = HERO_HEADLINE.split(" ");
+
+  return (
+    <motion.section
+      variants={heroVariants}
+      initial="hidden"
+      animate="visible"
+      className={`mx-auto flex min-h-full max-w-6xl flex-col justify-center py-16 ${workGutterClassName}`}
+    >
+      <h2
+        aria-label={HERO_HEADLINE}
+        className="max-w-4xl text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.035em] text-fg sm:text-5xl md:text-6xl lg:text-7xl"
+      >
+        {words.map((word, index) => (
+          <span key={index} aria-hidden="true">
+            <span className="inline-block overflow-hidden pb-[0.08em] align-bottom">
+              <motion.span variants={wordVariants} className="inline-block">
+                {word}
+              </motion.span>
+            </span>
+            {index < words.length - 1 && " "}
+          </span>
+        ))}
+      </h2>
+      <motion.p
+        variants={supportVariants}
+        className="mt-6 max-w-xl text-base leading-7 text-muted md:text-lg md:leading-8"
+      >
+        Web platforms, desktop applications, and community tools designed for
+        real-world use.
+      </motion.p>
+    </motion.section>
   );
 };
 

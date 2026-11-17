@@ -1,28 +1,22 @@
 "use client";
 
 import { motion, type Variants } from "motion/react";
-import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { FaPaperPlane, FaSpinner } from "react-icons/fa";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { FiLoader, FiSend } from "react-icons/fi";
 import { submitContactForm, type ContactFormState } from "./actions";
 import { showErrorToast, showSuccessToast } from "../utils/toast";
 
 const initialState: ContactFormState = { status: "idle" };
 
+const labelClassName = "flex flex-col gap-2";
+const labelTextClassName = "text-[13px] font-medium text-fg/80";
 const fieldClassName =
-  "w-full rounded-lg border border-white/10 bg-surface px-3 py-2.5 text-sm text-white placeholder:text-white/30 transition-colors duration-300 focus:border-yellow-400/30 focus:outline-none";
+  "w-full rounded-lg border border-line bg-raised px-3.5 py-2.5 text-[15px] text-fg placeholder:text-faint transition-[border-color,box-shadow] duration-150 hover:border-line-strong focus:border-accent/60 focus:outline-none focus:ring-3 focus:ring-accent/15 user-invalid:border-red-400/70 disabled:cursor-not-allowed disabled:opacity-60";
 
 type ContactFormProps = {
   motionVariants?: Variants;
 };
 
-/**
- * Contact form wired to the submitContactForm Server Action.
- */
 const ContactForm = ({ motionVariants }: ContactFormProps) => {
   const [state, formAction, isPending] = useActionState(
     submitContactForm,
@@ -52,7 +46,7 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
       ref={formRef}
       action={formAction}
       variants={motionVariants}
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-4"
     >
       <div
         aria-hidden="true"
@@ -62,9 +56,9 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
       </div>
       <input type="hidden" name="_startedAt" value={startedAt} />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-yellow-300/80">Name</span>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className={labelClassName}>
+          <span className={labelTextClassName}>Name</span>
           <input
             type="text"
             name="name"
@@ -76,8 +70,8 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
             disabled={isPending}
           />
         </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-yellow-300/80">Email</span>
+        <label className={labelClassName}>
+          <span className={labelTextClassName}>Email</span>
           <input
             type="email"
             name="email"
@@ -91,8 +85,8 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
         </label>
       </div>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-yellow-300/80">Subject</span>
+      <label className={labelClassName}>
+        <span className={labelTextClassName}>Subject</span>
         <input
           type="text"
           name="subject"
@@ -104,8 +98,8 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
         />
       </label>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-yellow-300/80">Message</span>
+      <label className={labelClassName}>
+        <span className={labelTextClassName}>Message</span>
         <textarea
           name="message"
           required
@@ -121,16 +115,20 @@ const ContactForm = ({ motionVariants }: ContactFormProps) => {
       <button
         type="submit"
         disabled={isPending}
-        className="flex items-center justify-center gap-2 rounded-lg border border-yellow-400/20 bg-yellow-400/10 px-4 py-2.5 text-sm font-medium text-yellow-300 transition-all duration-300 hover:border-yellow-400/40 hover:bg-yellow-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-1 inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-accent px-6 text-sm font-medium text-black transition-[background-color,scale] duration-150 hover:bg-accent-soft active:scale-[0.98] disabled:cursor-progress disabled:opacity-70 motion-reduce:active:scale-100 sm:w-auto sm:self-end"
       >
         {isPending ? (
           <>
-            <FaSpinner className="animate-spin" size={14} />
+            <FiLoader
+              className="animate-spin motion-reduce:animate-none"
+              size={15}
+              aria-hidden="true"
+            />
             Sending...
           </>
         ) : (
           <>
-            <FaPaperPlane size={14} />
+            <FiSend size={15} aria-hidden="true" />
             Send message
           </>
         )}

@@ -11,10 +11,11 @@ import {
 } from "react";
 import type { createHomeMotion } from "@/app/motion/homeMotion";
 
-const LETTER_GLITCH_MS = 220;
-const LETTER_STAGGER_MS = 48;
-const MOBILE_HOLD_MS = 2000;
-const SCRAMBLE_CHARS = "!@#$%&*?/\\|<>";
+const LETTER_SCRAMBLE_MS = 160;
+const LETTER_STAGGER_MS = 30;
+const SCRAMBLE_TICK_MS = 40;
+const TOUCH_HOLD_MS = 1800;
+const SCRAMBLE_CHARS = "abcdefghkmnrstuxz/_";
 
 type MotionConfig = ReturnType<typeof createHomeMotion>;
 
@@ -34,6 +35,9 @@ type GlitchNameHeadingProps = {
 const scrambleChar = () =>
   SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
 
+const getSequenceDuration = (letterCount: number) =>
+  Math.max(letterCount - 1, 0) * LETTER_STAGGER_MS + LETTER_SCRAMBLE_MS;
+
 const GlitchNameHeading = ({
   primaryName,
   altName,
@@ -44,17 +48,18 @@ const GlitchNameHeading = ({
   const [phase, setPhase] = useState<Phase>("idle-primary");
   const [letters, setLetters] = useState<string[]>(() => primaryName.split(""));
   const [visibleCount, setVisibleCount] = useState(primaryName.length);
+  const [isTouch, setIsTouch] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
   const isHoveredRef = useRef(false);
-  const mobileSequenceActiveRef = useRef(false);
-  const runGlitchToAltRef = useRef<() => void>(() => {});
-  const runGlitchToPrimaryRef = useRef<() => void>(() => {});
-  const [isTouchInteraction, setIsTouchInteraction] = useState(false);
+  const touchSequenceRef = useRef(false);
+  const runToAltRef = useRef<() => void>(() => {});
+  const runToPrimaryRef = useRef<() => void>(() => {});
 
   const primaryLetters = useMemo(() => primaryName.split(""), [primaryName]);
   const altLetters = useMemo(() => altName.split(""), [altName]);
-  const isSettled = phase === "idle-primary" || phase === "idle-alt";
+  const isGlitching =
+    phase === "glitching-to-alt" || phase === "glitching-to-primary";
 
   const clearTimers = useCallback(() => {
     timersRef.current.forEach(clearTimeout);
@@ -64,16 +69,10 @@ const GlitchNameHeading = ({
   }, []);
 
   const queueTimeout = useCallback((fn: () => void, delay: number) => {
-    const id = setTimeout(fn, delay);
-    timersRef.current.push(id);
+    timersRef.current.push(setTimeout(fn, delay));
   }, []);
 
-  const getGlitchEndDelay = useCallback((letterCount: number) => {
-    const lastIndex = Math.max(letterCount - 1, 0);
-    return lastIndex * LETTER_STAGGER_MS + LETTER_GLITCH_MS;
-  }, []);
-
-  const flickerLetter = useCallback(
+  const scrambleLetter = useCallback(
     (index: number, targetChar: string, delay: number) => {
       queueTimeout(() => {
         const interval = setInterval(() => {
@@ -82,355 +81,225 @@ const GlitchNameHeading = ({
             next[index] = scrambleChar();
             return next;
           });
-        }, 35);
+        }, SCRAMBLE_TICK_MS);
         intervalsRef.current.push(interval);
 
         queueTimeout(() => {
           clearInterval(interval);
-          intervalsRef.current = intervalsRef.current.filter(
-            (item) => item !== interval,
-          );
           setLetters((current) => {
             const next = [...current];
             next[index] = targetChar;
             return next;
           });
-        }, LETTER_GLITCH_MS);
+        }, LETTER_SCRAMBLE_MS);
       }, delay);
     },
     [queueTimeout],
   );
 
-  const runGlitchToPrimary = useCallback(() => {
+  const runToPrimary = useCallback(() => {
     clearTimers();
     setPhase("glitching-to-primary");
 
     primaryLetters.forEach((char, index) => {
-      flickerLetter(index, char, index * LETTER_STAGGER_MS);
+      scrambleLetter(index, char, index * LETTER_STAGGER_MS);
     });
 
-    for (
-      let index = altLetters.length;
-      index < primaryLetters.length;
-      index += 1
-    ) {
-      queueTimeout(() => {
-        setVisibleCount(index + 1);
-      }, index * LETTER_STAGGER_MS);
+    for (let index = altLetters.length; index < primaryLetters.length; index++) {
+      queueTimeout(() => setVisibleCount(index + 1), index * LETTER_STAGGER_MS);
     }
 
     queueTimeout(() => {
       if (isHoveredRef.current) {
-        runGlitchToAltRef.current();
+        runToAltRef.current();
         return;
       }
       setPhase("idle-primary");
-    }, getGlitchEndDelay(primaryLetters.length));
-  }, [
-    altLetters.length,
-    clearTimers,
-    flickerLetter,
-    getGlitchEndDelay,
-    primaryLetters,
-    queueTimeout,
-  ]);
+    }, getSequenceDuration(primaryLetters.length));
+  }, [altLetters.length, clearTimers, primaryLetters, queueTimeout, scrambleLetter]);
 
-  const runGlitchToAlt = useCallback(() => {
+  const runToAlt = useCallback(() => {
     clearTimers();
     setPhase("glitching-to-alt");
 
     altLetters.forEach((char, index) => {
-      flickerLetter(index, char, index * LETTER_STAGGER_MS);
+      scrambleLetter(index, char, index * LETTER_STAGGER_MS);
     });
 
-    for (
-      let index = altLetters.length;
-      index < primaryLetters.length;
-      index += 1
-    ) {
-      queueTimeout(() => {
-        setVisibleCount(
-          primaryLetters.length - (index - altLetters.length + 1),
-        );
-      }, index * LETTER_STAGGER_MS);
+    for (let index = altLetters.length; index < primaryLetters.length; index++) {
+      queueTimeout(
+        () =>
+          setVisibleCount(
+            primaryLetters.length - (index - altLetters.length + 1),
+          ),
+        index * LETTER_STAGGER_MS,
+      );
     }
 
     queueTimeout(() => {
       if (!isHoveredRef.current) {
-        runGlitchToPrimaryRef.current();
+        runToPrimaryRef.current();
         return;
       }
       setPhase("idle-alt");
-    }, getGlitchEndDelay(altLetters.length));
-  }, [
-    altLetters,
-    clearTimers,
-    flickerLetter,
-    getGlitchEndDelay,
-    primaryLetters.length,
-    queueTimeout,
-  ]);
+    }, getSequenceDuration(altLetters.length));
+  }, [altLetters, clearTimers, primaryLetters.length, queueTimeout, scrambleLetter]);
 
   useEffect(() => {
-    runGlitchToAltRef.current = runGlitchToAlt;
-    runGlitchToPrimaryRef.current = runGlitchToPrimary;
-  }, [runGlitchToAlt, runGlitchToPrimary]);
+    runToAltRef.current = runToAlt;
+    runToPrimaryRef.current = runToPrimary;
+  }, [runToAlt, runToPrimary]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(hover: none), (pointer: coarse)");
-    const updateTouchInteraction = () => {
-      setIsTouchInteraction(mediaQuery.matches);
-    };
+    const update = () => setIsTouch(mediaQuery.matches);
 
-    updateTouchInteraction();
-    mediaQuery.addEventListener("change", updateTouchInteraction);
-
-    return () => {
-      mediaQuery.removeEventListener("change", updateTouchInteraction);
-    };
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
   }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    if (!introComplete || isTouchInteraction) return;
-
-    isHoveredRef.current = true;
-
-    if (reduceMotion) {
-      setLetters(altLetters);
-      setVisibleCount(altLetters.length);
-      setPhase("idle-alt");
-      return;
-    }
-
-    if (phase !== "idle-alt" && phase !== "glitching-to-alt") {
-      runGlitchToAlt();
-    }
-  }, [altLetters, introComplete, isTouchInteraction, phase, reduceMotion, runGlitchToAlt]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (!introComplete || isTouchInteraction) return;
-
-    isHoveredRef.current = false;
-
-    if (reduceMotion) {
-      setLetters(primaryLetters);
-      setVisibleCount(primaryLetters.length);
-      setPhase("idle-primary");
-      return;
-    }
-
-    if (phase !== "idle-primary" && phase !== "glitching-to-primary") {
-      runGlitchToPrimary();
-    }
-  }, [introComplete, isTouchInteraction, phase, primaryLetters, reduceMotion, runGlitchToPrimary]);
-
-  const handleMobileTap = useCallback(() => {
-    if (!introComplete || !isTouchInteraction) return;
-    if (mobileSequenceActiveRef.current) return;
-    if (phase !== "idle-primary") return;
-
-    mobileSequenceActiveRef.current = true;
-    isHoveredRef.current = true;
-
-    if (reduceMotion) {
-      setLetters(altLetters);
-      setVisibleCount(altLetters.length);
-      setPhase("idle-alt");
-
-      queueTimeout(() => {
-        isHoveredRef.current = false;
-        setLetters(primaryLetters);
-        setVisibleCount(primaryLetters.length);
-        setPhase("idle-primary");
-        mobileSequenceActiveRef.current = false;
-      }, MOBILE_HOLD_MS);
-      return;
-    }
-
-    runGlitchToAlt();
-
-    queueTimeout(() => {
-      isHoveredRef.current = false;
-      runGlitchToPrimaryRef.current();
-
-      queueTimeout(() => {
-        mobileSequenceActiveRef.current = false;
-      }, getGlitchEndDelay(primaryLetters.length));
-    }, getGlitchEndDelay(altLetters.length) + MOBILE_HOLD_MS);
-  }, [
-    altLetters,
-    getGlitchEndDelay,
-    introComplete,
-    isTouchInteraction,
-    phase,
-    primaryLetters,
-    queueTimeout,
-    reduceMotion,
-    runGlitchToAlt,
-  ]);
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
-  const letterUsesAltStyle = useCallback(
-    (index: number, char: string) => {
-      if (phase === "idle-alt") return index < altLetters.length;
-      if (phase === "idle-primary") return false;
-      if (phase === "glitching-to-alt") {
-        return index < altLetters.length && char === altLetters[index];
-      }
-      return index < altLetters.length && char === altLetters[index];
+  const showInstantly = useCallback(
+    (target: "alt" | "primary") => {
+      const next = target === "alt" ? altLetters : primaryLetters;
+      setLetters(next);
+      setVisibleCount(next.length);
+      setPhase(target === "alt" ? "idle-alt" : "idle-primary");
     },
-    [altLetters, phase],
+    [altLetters, primaryLetters],
   );
 
-  const glitchClassName = useMemo(() => {
-    const classes = ["glitch-name"];
+  const handleMouseEnter = () => {
+    if (!introComplete || isTouch) return;
+    isHoveredRef.current = true;
 
     if (reduceMotion) {
-      classes.push("glitch-name--reduced");
-      return classes.join(" ");
+      showInstantly("alt");
+      return;
+    }
+    if (phase !== "idle-alt" && phase !== "glitching-to-alt") runToAlt();
+  };
+
+  const handleMouseLeave = () => {
+    if (!introComplete || isTouch) return;
+    isHoveredRef.current = false;
+
+    if (reduceMotion) {
+      showInstantly("primary");
+      return;
+    }
+    if (phase !== "idle-primary" && phase !== "glitching-to-primary") {
+      runToPrimary();
+    }
+  };
+
+  const handleTap = () => {
+    if (!introComplete || !isTouch) return;
+    if (touchSequenceRef.current || phase !== "idle-primary") return;
+
+    touchSequenceRef.current = true;
+    isHoveredRef.current = true;
+
+    if (reduceMotion) {
+      showInstantly("alt");
+      queueTimeout(() => {
+        isHoveredRef.current = false;
+        showInstantly("primary");
+        touchSequenceRef.current = false;
+      }, TOUCH_HOLD_MS);
+      return;
     }
 
-    if (isSettled) classes.push("glitch-name--settled");
-    if (phase === "glitching-to-alt") classes.push("glitch-name--glitch-in");
-    if (phase === "glitching-to-primary") {
-      classes.push("glitch-name--glitch-out");
-    }
+    runToAlt();
+    queueTimeout(() => {
+      isHoveredRef.current = false;
+      runToPrimaryRef.current();
+      queueTimeout(() => {
+        touchSequenceRef.current = false;
+      }, getSequenceDuration(primaryLetters.length));
+    }, getSequenceDuration(altLetters.length) + TOUCH_HOLD_MS);
+  };
 
-    return classes.join(" ");
-  }, [isSettled, phase, reduceMotion]);
+  const usesAltStyle = (index: number, char: string) => {
+    if (phase === "idle-alt") return index < altLetters.length;
+    if (phase === "idle-primary") return false;
+    return index < altLetters.length && char === altLetters[index];
+  };
 
-  const renderSizer = () => (
-    <span className="glitch-name__sizer" aria-hidden="true">
-      <span className="glitch-name__sizer-primary glitch-name__stack">
-        {primaryLetters.map((char, index) => (
-          <span
-            key={`sizer-primary-${index}`}
-            className="glitch-name__sizer-char"
-          >
-            {char}
-          </span>
-        ))}
-      </span>
-      <span className="glitch-name__sizer-alt glitch-name__stack glitch-name__stack--alt font-thegora">
-        {altLetters.map((char, index) => (
-          <span key={`sizer-${index}`} className="glitch-name__sizer-alt-char">
-            {char}
-          </span>
-        ))}
-      </span>
-    </span>
-  );
-
-  const renderLetterLayers = (char: string, useAltStyle: boolean) => (
-    <>
-      <span
-        className={`glitch-name__layer glitch-name__layer--base ${
-          useAltStyle ? "glitch-name__layer--alt" : ""
-        }`}
-      >
-        {char}
-      </span>
-      {!reduceMotion && (
-        <>
-          <span
-            className={`glitch-name__layer glitch-name__layer--cyan ${
-              useAltStyle ? "glitch-name__layer--alt" : ""
-            }`}
-            aria-hidden="true"
-          >
-            {char}
-          </span>
-          <span
-            className={`glitch-name__layer glitch-name__layer--red ${
-              useAltStyle ? "glitch-name__layer--alt" : ""
-            }`}
-            aria-hidden="true"
-          >
-            {char}
-          </span>
-        </>
-      )}
-    </>
-  );
-
-  const visibleLetters = letters.slice(0, visibleCount);
+  const className = [
+    "glitch-name select-none text-accent",
+    isGlitching && !reduceMotion ? "glitch-name--glitching" : "",
+    isTouch ? "cursor-pointer" : "cursor-default",
+  ].join(" ");
 
   return (
-    <span
-      className={`${glitchClassName} select-none text-yellow-300 transition-colors duration-300 ${
-        isTouchInteraction ? "cursor-pointer" : "cursor-default"
-      }`}
-      onMouseEnter={introComplete ? handleMouseEnter : undefined}
-      onMouseLeave={introComplete ? handleMouseLeave : undefined}
-      onClick={introComplete && isTouchInteraction ? handleMobileTap : undefined}
-      onKeyDown={
-        introComplete && isTouchInteraction
-          ? (event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                handleMobileTap();
-              }
-            }
-          : undefined
-      }
-      tabIndex={introComplete && isTouchInteraction ? 0 : undefined}
-      aria-label={
-        phase === "idle-alt" || phase === "glitching-to-alt"
-          ? altName
-          : primaryName
-      }
-      role="text"
-    >
-      {renderSizer()}
-      <span className="glitch-name__content">
-        {!introComplete ? (
-          <motion.span
-            variants={motionConfig.nameContainer}
-            initial="hidden"
-            animate="visible"
-            className="glitch-name__stack"
-          >
-            {primaryLetters.map((letter, index) => (
-              <motion.span
-                key={index}
-                variants={motionConfig.nameLetter}
-                onAnimationComplete={() => {
-                  if (index === primaryLetters.length - 1) {
-                    setIntroComplete(true);
-                  }
-                }}
-                className="glitch-name__letter"
-              >
-                {renderLetterLayers(letter, false)}
-              </motion.span>
+    <>
+      <span className="sr-only">{primaryName}</span>
+      <span
+        aria-hidden="true"
+        className={className}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleTap}
+      >
+        <span className="glitch-name__sizer">
+          <span className="glitch-name__stack">{primaryName}</span>
+          <span className="glitch-name__stack glitch-name__stack--alt">
+            {altLetters.map((char, index) => (
+              <span key={index} className="glitch-name__letter--alt">
+                {char}
+              </span>
             ))}
-          </motion.span>
-        ) : (
-          <span
-            className={`glitch-name__stack ${
-              phase === "idle-alt" ? "glitch-name__stack--alt" : ""
-            }`}
-          >
-            {visibleLetters.map((char, index) => {
-              const useAltStyle = letterUsesAltStyle(index, char);
+          </span>
+        </span>
 
-              return (
+        <span className="glitch-name__content">
+          {!introComplete ? (
+            <motion.span
+              variants={motionConfig.nameContainer}
+              initial="hidden"
+              animate="visible"
+              className="glitch-name__stack"
+            >
+              {primaryLetters.map((letter, index) => (
+                <motion.span
+                  key={index}
+                  variants={motionConfig.nameLetter}
+                  onAnimationComplete={() => {
+                    if (index === primaryLetters.length - 1) {
+                      setIntroComplete(true);
+                    }
+                  }}
+                  className="glitch-name__letter"
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </motion.span>
+          ) : (
+            <span
+              className={`glitch-name__stack ${
+                phase === "idle-alt" ? "glitch-name__stack--alt" : ""
+              }`}
+            >
+              {letters.slice(0, visibleCount).map((char, index) => (
                 <span
                   key={index}
                   className={`glitch-name__letter ${
-                    useAltStyle ? "glitch-name__letter--alt" : ""
+                    usesAltStyle(index, char) ? "glitch-name__letter--alt" : ""
                   }`}
                   style={{ "--letter-index": index } as CSSProperties}
                 >
-                  {renderLetterLayers(char, useAltStyle)}
+                  {char}
                 </span>
-              );
-            })}
-          </span>
-        )}
+              ))}
+            </span>
+          )}
+        </span>
       </span>
-    </span>
+    </>
   );
 };
 

@@ -17,6 +17,7 @@ export const useCursorGlow = ({ enabled }: UseCursorGlowOptions) => {
   const mouseFrameRef = useRef<number | null>(null);
   const mousePositionRef = useRef<{ x: number; y: number } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const visibleRef = useRef(false);
 
   const cursorX = useMotionValue(-600);
   const cursorY = useMotionValue(-600);
@@ -29,9 +30,12 @@ export const useCursorGlow = ({ enabled }: UseCursorGlowOptions) => {
     if (!enabled) return;
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (window.innerWidth < 768) return;
+      if (e.pointerType !== "mouse" || window.innerWidth < 768) return;
 
-      setIsVisible(true);
+      if (!visibleRef.current) {
+        visibleRef.current = true;
+        setIsVisible(true);
+      }
       mousePositionRef.current = { x: e.clientX, y: e.clientY };
       if (mouseFrameRef.current) return;
 
@@ -49,7 +53,9 @@ export const useCursorGlow = ({ enabled }: UseCursorGlowOptions) => {
     };
 
     const handlePointerLeave = (e: PointerEvent) => {
-      if (!e.relatedTarget) setIsVisible(false);
+      if (e.relatedTarget) return;
+      visibleRef.current = false;
+      setIsVisible(false);
     };
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });

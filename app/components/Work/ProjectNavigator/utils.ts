@@ -6,15 +6,6 @@ export const MAX_MARKER_HEIGHT = 6;
 export const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 
-export const getInitials = (name: string) =>
-  name
-    .split(/\s|\./)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-
 export const getNavigationTarget = (
   key: string,
   currentIndex: number,

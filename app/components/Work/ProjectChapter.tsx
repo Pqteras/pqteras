@@ -1,137 +1,76 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
+import { FaGithub } from "react-icons/fa";
 import {
-  FaCheck,
-  FaExternalLinkAlt,
-  FaGithub,
-  FaImages,
-  FaLink,
-} from "react-icons/fa";
+  FiArrowUpRight,
+  FiCheck,
+  FiImage,
+  FiLink,
+  FiMaximize2,
+} from "react-icons/fi";
 import { useWorkScroll } from "../../context/WorkScrollContext";
-import { useChapterParallax } from "../../hooks/useChapterParallax";
-import { useHydratedRef } from "../../hooks/useHydratedRef";
+import { ease } from "../../motion/tokens";
 import { showErrorToast, showSuccessToast } from "../../utils/toast";
-import { getWorkLogoClassName, type WorkItem } from "../../utils/workData";
+import {
+  getInitials,
+  getWorkLogoClassName,
+  type WorkItem,
+} from "../../utils/workData";
 
 type ProjectChapterProps = {
   item: WorkItem;
   index: number;
-  total: number;
   isScrollContainerReady: boolean;
   onOpenGallery: (item: WorkItem) => void;
   priorityImage?: boolean;
 };
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const contentVariants = {
-  hidden: (direction: number) => ({ opacity: 0, x: direction * 44 }),
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      duration: 0.75,
-      ease: easeOut,
-      delayChildren: 0.08,
-      staggerChildren: 0.075,
-    },
-  },
-};
-
-const mediaVariants = {
-  hidden: (direction: number) => ({
-    opacity: 0,
-    x: direction * -52,
-    scale: 0.94,
-  }),
-  visible: {
-    opacity: 1,
-    x: 0,
-    scale: 1,
-    transition: {
-      duration: 0.85,
-      ease: easeOut,
-      delayChildren: 0.12,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 22 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: easeOut },
-  },
-};
-
-const listVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { staggerChildren: 0.045 },
-  },
-};
-
-const chipVariants = {
-  hidden: { opacity: 0, y: 10, scale: 0.94 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.4, ease: easeOut },
-  },
-};
+export const workGutterClassName = "pl-10 pr-5 md:pl-24 md:pr-10 lg:px-20";
 
 const primaryActionClassName =
-  "inline-flex cursor-pointer items-center gap-2 rounded-full bg-yellow-300 px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-yellow-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-200 focus-visible:ring-offset-2 focus-visible:ring-offset-[#212121]";
+  "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-accent px-4.5 text-sm font-medium text-black transition-[background-color,scale] duration-150 hover:bg-accent-soft active:scale-[0.97] motion-reduce:active:scale-100";
 
 const secondaryActionClassName =
-  "inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-transparent px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-yellow-300/60 hover:text-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#212121]";
+  "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-medium text-muted transition-[background-color,color,scale] duration-150 hover:bg-raised hover:text-fg active:scale-[0.97] motion-reduce:active:scale-100";
 
-const getInitials = (name: string) =>
-  name
-    .split(/\s|\./)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+const getTextVariants = (reduceMotion: boolean): Variants => ({
+  hidden: reduceMotion ? {} : { y: 16 },
+  visible: {
+    y: 0,
+    transition: { duration: 0.7, ease: ease.out },
+  },
+});
 
-const ProjectMark = ({
-  item,
-  large = false,
-}: {
-  item: WorkItem;
-  large?: boolean;
-}) => (
-  <motion.div
-    variants={itemVariants}
-    className={`relative grid shrink-0 place-items-center ${
-      large ? "h-24 w-24 md:h-32 md:w-32" : "h-12 w-12"
-    }`}
-  >
+const getMediaVariants = (reduceMotion: boolean): Variants => ({
+  hidden: reduceMotion
+    ? {}
+    : { clipPath: "inset(8% 5% 8% 5% round 20px)", scale: 1.03 },
+  visible: {
+    clipPath: "inset(0% 0% 0% 0% round 12px)",
+    scale: 1,
+    transition: { duration: 0.9, ease: ease.out },
+  },
+});
+
+const ProjectMark = ({ item }: { item: WorkItem }) => (
+  <span className="grid size-11 shrink-0 place-items-center" aria-hidden="true">
     {item.logo ? (
       <Image
         src={item.logo}
-        alt={`${item.name} logo`}
-        width={large ? 128 : 48}
-        height={large ? 128 : 48}
+        alt=""
+        width={44}
+        height={44}
         className={getWorkLogoClassName(item.logoClassName)}
       />
     ) : (
-      <span
-        className={`font-semibold text-yellow-300 ${large ? "text-3xl" : "text-sm"}`}
-        aria-label={`${item.name} initials`}
-      >
+      <span className="grid size-11 place-items-center rounded-xl border border-line bg-raised text-sm font-semibold text-fg/80">
         {getInitials(item.name)}
       </span>
     )}
-  </motion.div>
+  </span>
 );
 
 const CopyProjectLinkButton = ({ item }: { item: WorkItem }) => {
@@ -154,14 +93,14 @@ const CopyProjectLinkButton = ({ item }: { item: WorkItem }) => {
     <button
       type="button"
       onClick={() => void handleCopy()}
-      className="cursor-pointer rounded-md p-1.5 text-white/30 transition-colors hover:bg-white/5 hover:text-yellow-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/70"
+      className="grid size-8 cursor-pointer place-items-center rounded-lg text-faint opacity-0 transition-[opacity,color,background-color] duration-150 group-hover/chapter:opacity-100 hover:bg-raised hover:text-fg focus-visible:opacity-100 pointer-coarse:opacity-100"
       aria-label={`Copy link to ${item.name}`}
       title="Copy link"
     >
       {copied ? (
-        <FaCheck className="text-yellow-300" size={13} />
+        <FiCheck className="text-accent" size={15} aria-hidden="true" />
       ) : (
-        <FaLink size={13} />
+        <FiLink size={15} aria-hidden="true" />
       )}
     </button>
   );
@@ -170,215 +109,164 @@ const CopyProjectLinkButton = ({ item }: { item: WorkItem }) => {
 const ProjectChapter = ({
   item,
   index,
-  total,
   isScrollContainerReady,
   onOpenGallery,
   priorityImage = false,
 }: ProjectChapterProps) => {
-  const { setRef: setChapterRef, isHydrated: isChapterReady } =
-    useHydratedRef<HTMLElement>();
-  const [chapterElement, setChapterElement] = useState<HTMLElement | null>(
-    null,
-  );
   const { scrollContainer } = useWorkScroll();
   const reduceMotion = useReducedMotion() ?? false;
-  const direction = index % 2 ? 1 : -1;
-  const canTrackScroll = isScrollContainerReady && isChapterReady;
-  const parallax = useChapterParallax(chapterElement, {
-    enabled: canTrackScroll,
-  });
-  const scrollMotionStyle =
-    parallax && !reduceMotion
-      ? { y: parallax.y, scale: parallax.scale }
-      : undefined;
   const headingId = `project-${item.id}-heading`;
   const preview = item.screenshots?.[0];
+  const isFlipped = index % 2 === 1;
   const viewport = isScrollContainerReady
-    ? ({ root: scrollContainer, once: true, amount: 0.22 } as const)
-    : ({ once: true, amount: 0.22 } as const);
+    ? ({ root: scrollContainer, once: true, amount: 0.25 } as const)
+    : ({ once: true, amount: 0.25 } as const);
 
-  const handleChapterRef = (node: HTMLElement | null) => {
-    setChapterRef(node);
-    setChapterElement(node);
-  };
+  const primaryAction = item.website
+    ? "website"
+    : item.repository
+      ? "repository"
+      : "gallery";
+  const actionClassName = (action: typeof primaryAction) =>
+    action === primaryAction
+      ? primaryActionClassName
+      : secondaryActionClassName;
+  const hasActions = Boolean(
+    item.website || item.repository || item.screenshots,
+  );
 
   return (
-    <motion.article
-      ref={handleChapterRef}
+    <article
       id={`work-project-${item.id}`}
       data-work-project={item.id}
       aria-labelledby={headingId}
-      style={scrollMotionStyle}
-      className="mx-auto flex min-h-[calc(var(--app-viewport-height)-9rem)] w-full max-w-6xl items-center py-16 pl-10 pr-5 md:px-10 lg:px-16"
+      className={`group/chapter mx-auto flex min-h-[calc(var(--app-viewport-height)-9rem)] w-full max-w-6xl items-center py-20 ${workGutterClassName}`}
     >
-      <div className="grid w-full items-center gap-8 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-12 lg:gap-20">
+      <div
+        className={`grid w-full items-center gap-10 ${
+          preview
+            ? "md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-14 lg:gap-20"
+            : ""
+        }`}
+      >
         <motion.div
-          custom={direction}
-          variants={contentVariants}
-          initial={reduceMotion ? false : "hidden"}
+          variants={getTextVariants(reduceMotion)}
+          initial="hidden"
           whileInView="visible"
           viewport={viewport}
-          className={index % 2 ? "md:order-2" : undefined}
+          className={`${isFlipped && preview ? "md:order-2" : ""} ${
+            preview ? "" : "max-w-2xl"
+          }`}
         >
-          <motion.div
-            variants={itemVariants}
-            className="mb-6 flex items-center gap-4"
-          >
+          <div className="mb-5 flex items-center gap-4">
             <ProjectMark item={item} />
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/35">
-                {String(index + 1).padStart(2, "0")} /{" "}
-                {String(total).padStart(2, "0")}
-              </p>
-              <div className="flex items-center gap-2">
-                <h2
-                  id={headingId}
-                  className={`text-3xl font-semibold tracking-tight md:text-4xl ${item.accent}`}
-                >
-                  {item.name}
-                </h2>
-                <CopyProjectLinkButton item={item} />
-              </div>
+            <div className="flex min-w-0 items-center gap-1">
+              <h2
+                id={headingId}
+                className={`text-3xl font-semibold tracking-[-0.025em] md:text-4xl ${item.accent}`}
+              >
+                {item.name}
+              </h2>
+              <CopyProjectLinkButton item={item} />
             </div>
-          </motion.div>
+          </div>
 
-          <motion.p
-            variants={itemVariants}
-            className="max-w-xl text-base leading-7 text-white/65 md:text-lg md:leading-8"
-          >
+          <p className="max-w-xl text-base leading-7 text-muted md:text-[17px] md:leading-8">
             {item.description}
-          </motion.p>
+          </p>
 
-          <motion.ul
-            variants={listVariants}
-            className="mt-7 flex flex-wrap gap-2"
+          <ul
+            className="mt-6 flex flex-wrap gap-x-5 gap-y-2.5"
             aria-label={`${item.name} technologies`}
           >
             {item.technologies.map((technology) => (
-              <motion.li
+              <li
                 key={technology.name}
-                variants={chipVariants}
-                className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/3 px-2.5 py-1.5 text-xs text-white/65"
+                className="flex items-center gap-2 text-sm text-muted"
               >
                 <Image
                   src={technology.icon}
                   alt=""
-                  width={18}
-                  height={18}
-                  className="h-4.5 w-4.5 object-contain"
+                  width={16}
+                  height={16}
+                  className="size-4 object-contain"
                 />
                 {technology.name}
-              </motion.li>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
 
-          {(item.website || item.repository || item.screenshots) && (
-            <motion.div
-              variants={listVariants}
-              className="mt-5 flex flex-wrap items-center gap-2.5 border-t border-white/8 pt-5"
-            >
+          {hasActions && (
+            <div className="mt-8 flex flex-wrap items-center gap-1.5">
               {item.website && (
-                <motion.a
-                  variants={chipVariants}
-                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                <a
                   href={item.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={primaryActionClassName}
+                  className={actionClassName("website")}
                 >
-                  <FaExternalLinkAlt size={11} aria-hidden="true" />
                   Visit project
-                </motion.a>
+                  <FiArrowUpRight size={15} aria-hidden="true" />
+                </a>
               )}
               {item.repository && (
-                <motion.a
-                  variants={chipVariants}
-                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                <a
                   href={item.repository}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={
-                    item.website
-                      ? secondaryActionClassName
-                      : primaryActionClassName
-                  }
+                  className={actionClassName("repository")}
                 >
-                  <FaGithub size={14} aria-hidden="true" />
+                  <FaGithub size={15} aria-hidden="true" />
                   Source
-                </motion.a>
+                </a>
               )}
               {item.screenshots && (
-                <motion.button
-                  variants={chipVariants}
-                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                <button
                   type="button"
                   onClick={() => onOpenGallery(item)}
-                  className={
-                    item.website || item.repository
-                      ? secondaryActionClassName
-                      : primaryActionClassName
-                  }
+                  className={actionClassName("gallery")}
                 >
-                  <FaImages size={13} aria-hidden="true" />
+                  <FiImage size={15} aria-hidden="true" />
                   Gallery
-                </motion.button>
+                </button>
               )}
-            </motion.div>
+            </div>
           )}
         </motion.div>
 
-        <motion.div
-          custom={direction}
-          variants={mediaVariants}
-          initial={reduceMotion ? false : "hidden"}
-          whileInView="visible"
-          viewport={viewport}
-          className={index % 2 ? "md:order-1" : undefined}
-        >
-          {preview ? (
-            <motion.button
-              variants={itemVariants}
-              whileTap={{ scale: 0.99 }}
+        {preview && (
+          <motion.div
+            variants={getMediaVariants(reduceMotion)}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewport}
+            className={isFlipped ? "md:order-1" : undefined}
+          >
+            <button
               type="button"
               onClick={() => onOpenGallery(item)}
               aria-label={`Open ${item.name} screenshot gallery`}
-              className="relative block aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0f0f0f] shadow-2xl shadow-black/30 hover:border-yellow-300/25"
+              className="group/preview relative block aspect-video w-full cursor-zoom-in overflow-hidden rounded-xl border border-line bg-raised shadow-[0_40px_80px_-40px_rgb(0_0_0/0.9)]"
             >
               <Image
                 src={preview}
                 alt={`${item.name} project preview`}
                 fill
                 priority={priorityImage}
-                sizes="(max-width: 768px) 100vw, 52vw"
-                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 55vw"
+                className="object-cover transition-transform duration-700 ease-out-expo group-hover/preview:scale-[1.025] motion-reduce:transition-none motion-reduce:group-hover/preview:scale-100"
               />
-              <motion.span
-                variants={itemVariants}
-                className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-linear-to-t from-black/85 to-transparent px-4 pb-4 pt-12 text-left text-sm text-white/70"
+              <span
+                className="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full border border-line bg-surface/90 text-fg opacity-0 transition-opacity duration-200 group-hover/preview:opacity-100 group-focus-visible/preview:opacity-100"
+                aria-hidden="true"
               >
-                View Gallery
-                <FaImages className="text-yellow-300" />
-              </motion.span>
-            </motion.button>
-          ) : (
-            <motion.div
-              variants={itemVariants}
-              className="grid aspect-4/3 w-full place-items-center"
-            >
-              <div className="flex flex-col items-center gap-5">
-                <ProjectMark item={item} large />
-                <motion.span
-                  variants={itemVariants}
-                  className="text-xs font-medium uppercase tracking-[0.24em] text-white/30"
-                >
-                  Featured project
-                </motion.span>
-              </div>
-            </motion.div>
-          )}
-        </motion.div>
+                <FiMaximize2 size={14} />
+              </span>
+            </button>
+          </motion.div>
+        )}
       </div>
-    </motion.article>
+    </article>
   );
 };
 

@@ -1,22 +1,11 @@
 "use client";
 
+import { motion, useReducedMotion } from "motion/react";
 import { useLanyard } from "react-use-lanyard";
-import { motion, type Variants } from "motion/react";
-
-const statusVariants: Variants = {
-  hidden: { opacity: 0, y: 8, scale: 0.96 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
+import { ease } from "../../motion/tokens";
 
 const Status = () => {
+  const reduceMotion = useReducedMotion() ?? false;
   const { status } = useLanyard({
     userId: "303804858744700929",
     socket: true,
@@ -25,30 +14,31 @@ const Status = () => {
   const isOnline = status?.discord_status !== "offline";
 
   return (
-    <motion.div
-      variants={statusVariants}
-      initial="hidden"
-      animate="visible"
-      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-light border border-white/10"
+    <div
+      role="status"
+      className="flex shrink-0 items-center gap-2 rounded-full border border-line bg-raised/60 px-3 py-1.5"
     >
-      <span className="relative grid h-2.5 w-2.5 place-items-center">
-        {isOnline && (
+      <span
+        className="relative grid size-2 place-items-center"
+        aria-hidden="true"
+      >
+        {isOnline && !reduceMotion && (
           <motion.span
-            animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="col-start-1 row-start-1 h-full w-full rounded-full bg-green-400"
+            animate={{ scale: [1, 2.6], opacity: [0.55, 0] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: ease.out }}
+            className="col-start-1 row-start-1 size-full rounded-full bg-online"
           />
         )}
         <span
-          className={`col-start-1 row-start-1 h-2.5 w-2.5 rounded-full ${
-            isOnline ? "bg-green-400" : "bg-gray-500"
+          className={`col-start-1 row-start-1 size-2 rounded-full transition-colors duration-300 ${
+            isOnline ? "bg-online" : "bg-faint"
           }`}
         />
       </span>
-      <span className="text-xs font-medium text-white/80">
+      <span className="text-xs font-medium text-fg/85">
         {isOnline ? "Online" : "Offline"}
       </span>
-    </motion.div>
+    </div>
   );
 };
 

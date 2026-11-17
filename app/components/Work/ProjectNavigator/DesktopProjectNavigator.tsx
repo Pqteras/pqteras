@@ -56,7 +56,7 @@ const DesktopProjectNavigator = ({
         }
       }}
     >
-      <span className="mb-2 block text-[9px] font-medium uppercase tracking-[0.18em] text-white/25">
+      <span className="mb-2.5 block text-xs font-medium text-faint">
         Projects
       </span>
       <div
@@ -91,7 +91,7 @@ const DesktopProjectNavigator = ({
           />
         ))}
       </div>
-      <span className="mt-2 block text-[10px] tabular-nums text-white/35">
+      <span className="mt-2.5 block text-xs tabular-nums text-faint">
         {activeIndex >= 0 ? String(activeIndex + 1).padStart(2, "0") : "--"} /{" "}
         {String(items.length).padStart(2, "0")}
       </span>

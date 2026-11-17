@@ -12,19 +12,9 @@ const IMAGE_EXTENSIONS = new Set([
   ".avif",
 ]);
 
-/**
- * Returns true when `candidate` is `root` or a path under `root`.
- */
 const isPathInsideRoot = (root: string, candidate: string): boolean =>
   candidate === root || candidate.startsWith(`${root}${path.sep}`);
 
-/**
- * Reads image files from a public folder path and returns them sorted
- * with numeric-aware ordering (screenshot_2 before screenshot_10).
- *
- * @param folderPublicPath - Public URL path such as `/projects/docrivo`.
- * @returns Sorted public image paths, or an empty array when missing/empty.
- */
 export const resolveScreenshotFolder = (
   folderPublicPath: string,
 ): string[] => {

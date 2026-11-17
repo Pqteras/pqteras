@@ -3,21 +3,17 @@
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { MouseEvent } from "react";
-import TabIcon from "./TabIcon";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { FiBriefcase, FiHome, FiMail } from "react-icons/fi";
+import { spring } from "../../motion/tokens";
 
 const tabs = [
-  { href: "/", label: "Home", variant: "home" as const },
-  { href: "/work", label: "Work", variant: "work" as const },
-  { href: "/contact", label: "Contact", variant: "contact" as const },
-];
+  { href: "/", label: "Home", icon: FiHome },
+  { href: "/work", label: "Work", icon: FiBriefcase },
+  { href: "/contact", label: "Contact", icon: FiMail },
+] as const;
 
-const tapSpring = {
-  type: "spring" as const,
-  stiffness: 520,
-  damping: 34,
-  mass: 0.55,
-};
+type TabBounds = Record<string, { x: number; width: number }>;
 
 type TabsProps = {
   activeHref?: string;
@@ -28,48 +24,75 @@ const Tabs = ({ activeHref, onNavigate }: TabsProps) => {
   const pathname = usePathname();
   const currentHref = activeHref ?? pathname;
   const reduceMotion = useReducedMotion() ?? false;
+  const navRef = useRef<HTMLElement>(null);
+  const [bounds, setBounds] = useState<TabBounds>({});
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const measure = () => {
+      const next: TabBounds = {};
+      nav.querySelectorAll<HTMLAnchorElement>("a[data-tab]").forEach((link) => {
+        next[link.dataset.tab ?? ""] = {
+          x: link.offsetLeft,
+          width: link.offsetWidth,
+        };
+      });
+      setBounds(next);
+    };
+
+    const frame = window.requestAnimationFrame(measure);
+    const observer = new ResizeObserver(measure);
+    observer.observe(nav);
+    void document.fonts?.ready.then(measure);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, []);
+
+  const pill = bounds[currentHref];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="select-none flex items-center gap-1 p-1.5 rounded-full bg-surface border border-white/10 shadow-lg shadow-black/20"
+    <nav
+      ref={navRef}
+      aria-label="Primary"
+      className="relative flex select-none items-center gap-1 rounded-full border border-line bg-surface/95 p-1.5 shadow-[0_16px_40px_-16px_rgb(0_0_0/0.8)]"
     >
+      {pill && (
+        <motion.span
+          aria-hidden="true"
+          className="absolute left-0 top-1.5 h-9 rounded-full bg-accent"
+          initial={false}
+          animate={{ x: pill.x, width: pill.width }}
+          transition={reduceMotion ? { duration: 0 } : spring.snappy}
+        />
+      )}
+
       {tabs.map((tab) => {
         const isActive = currentHref === tab.href;
+        const Icon = tab.icon;
 
         return (
-          <motion.div
+          <Link
             key={tab.href}
-            whileTap={reduceMotion ? undefined : { scale: 0.92 }}
-            transition={tapSpring}
-            className="relative"
+            href={tab.href}
+            data-tab={tab.href}
+            scroll={false}
+            onClick={(event) => onNavigate?.(tab.href, event)}
+            aria-current={isActive ? "page" : undefined}
+            className={`relative flex h-9 items-center gap-2 rounded-full px-4 text-sm font-medium transition-[color,scale] duration-150 active:scale-[0.96] motion-reduce:active:scale-100 ${
+              isActive ? "text-black" : "text-muted hover:text-fg"
+            } ${isActive && !pill ? "bg-accent" : ""}`}
           >
-            <Link
-              href={tab.href}
-              scroll={false}
-              onClick={(event) => onNavigate?.(tab.href, event)}
-              className={`group relative flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-sm transition-colors duration-300 ${
-                isActive ? "text-black" : "text-white/60 hover:text-white/80"
-              }`}
-              aria-label={`Navigate to ${tab.label}`}
-              aria-current={isActive ? "page" : undefined}
-            >
-              {isActive && (
-                <motion.span
-                  layoutId="activeTab"
-                  className="absolute inset-0 rounded-full bg-yellow-300"
-                  transition={{ type: "spring", stiffness: 480, damping: 32 }}
-                />
-              )}
-              <TabIcon variant={tab.variant} isActive={isActive} />
-              <span className="relative z-10">{tab.label}</span>
-            </Link>
-          </motion.div>
+            <Icon size={15} aria-hidden="true" />
+            <span>{tab.label}</span>
+          </Link>
         );
       })}
-    </motion.div>
+    </nav>
   );
 };
 

@@ -12,26 +12,71 @@
 }
 
 @theme {
-  --color-background: #212121;
-  --color-surface: #191919;
-  --color-surface-light: #151515;
+  --color-bg: #1c1b19;
+  --color-surface: #151412;
+  --color-raised: #22211e;
+  --color-line: rgb(255 248 230 / 0.08);
+  --color-line-strong: rgb(255 248 230 / 0.16);
+  --color-fg: #f3f1eb;
+  --color-muted: #a9a59b;
+  --color-faint: #8f8b82;
   --color-accent: #fde047;
-  --color-accent-hover: #fef08a;
-  --color-accent-glow: rgba(253, 224, 71, 0.3);
-  --color-glass: rgba(255, 255, 255, 0.03);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: rgba(255, 255, 255, 0.7);
-  --color-text-muted: rgba(255, 255, 255, 0.5);
-  --color-success: #22c55e;
-  --color-offline: #6b7280;
+  --color-accent-soft: #fef08a;
+  --color-online: #4ade80;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--color-line-strong) transparent;
 }
 
 body {
-  background-color: #212121;
-  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
   min-height: var(--app-viewport-height);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  caret-color: var(--color-accent);
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #000;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 248 230 / 0.26);
 }
 
 html.app-scroll-locked,
@@ -46,79 +91,4 @@ body.app-scroll-locked {
   position: fixed;
   inset: 0;
   width: 100%;
-}
-
-::selection {
-  background: var(--color-accent);
-  color: #000000;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(253, 224, 71, 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(253, 224, 71, 0.5);
-}
-
-.desc-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
-}
-.desc-scroll:hover {
-  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
-}
-.desc-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-.desc-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.desc-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-}
-.desc-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-/* Nav tab icons — animate on `.group` (full tab link) hover, not icon-only */
-.tab-nav-icon {
-  transform: translateY(0) scale(1);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-origin: center bottom;
-}
-
-.group:hover .tab-nav-icon--home {
-  transform: translateY(-3px) scale(1.12);
-}
-
-.group:hover .tab-nav-icon--work {
-  transform: translateY(-4px) scale(1.15);
-}
-
-.group:active .tab-nav-icon--home,
-.group:active .tab-nav-icon--work {
-  transform: translateY(0) scale(0.92);
-  transition-duration: 0.12s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tab-nav-icon,
-  .group:hover .tab-nav-icon--home,
-  .group:hover .tab-nav-icon--work,
-  .group:active .tab-nav-icon--home,
-  .group:active .tab-nav-icon--work {
-    transform: none !important;
-    transition: none !important;
-  }
 }

@@ -82,10 +82,10 @@ const DesktopProjectMarker = ({
     >
       <motion.span
         style={{ width: markerWidth, height: markerHeight }}
-        className={`block rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-yellow-300/70 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-surface ${
+        className={`block rounded-full transition-colors duration-200 group-focus-visible:ring-2 group-focus-visible:ring-accent/70 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-surface ${
           active
-            ? "bg-yellow-300 shadow-[0_0_12px_rgba(253,224,71,0.34)]"
-            : "bg-white/25 group-hover:bg-white/45 group-focus-visible:bg-white/50"
+            ? "bg-accent"
+            : "bg-fg/22 group-hover:bg-fg/45 group-focus-visible:bg-fg/50"
         }`}
         aria-hidden="true"
       />
@@ -103,10 +103,10 @@ const DesktopProjectMarker = ({
                 ? { duration: 0 }
                 : { type: "spring", stiffness: 430, damping: 34, mass: 0.62 }
             }
-            className="pointer-events-none absolute left-14 -top-3.5 z-20 flex h-11 w-52 items-center gap-3 rounded-xl bg-[#292929]/97 px-3 shadow-[0_12px_32px_rgba(0,0,0,0.32)] backdrop-blur-md"
+            className="pointer-events-none absolute left-14 -top-3.5 z-20 flex h-11 w-max min-w-44 items-center gap-3 rounded-xl border border-line bg-raised pl-2.5 pr-4 shadow-[0_16px_36px_-12px_rgb(0_0_0/0.7)]"
           >
             <ProjectIcon item={item} />
-            <span className="min-w-0 flex-1 whitespace-nowrap text-sm font-medium text-white/88">
+            <span className="whitespace-nowrap text-sm font-medium text-fg">
               {item.name}
             </span>
           </motion.span>

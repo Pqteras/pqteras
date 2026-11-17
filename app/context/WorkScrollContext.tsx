@@ -21,9 +21,6 @@ type WorkScrollProviderProps = {
   children: ReactNode;
 };
 
-/**
- * Shares one scroll progress source for the work page scroll container.
- */
 export const WorkScrollProvider = ({
   scrollContainer,
   isScrollContainerReady,
@@ -40,9 +37,6 @@ export const WorkScrollProvider = ({
   );
 };
 
-/**
- * Returns the shared work scroll container and progress value.
- */
 export const useWorkScroll = () => {
   const context = useContext(WorkScrollContext);
 

@@ -8,10 +8,7 @@ type UseHydratedRefResult<T extends HTMLElement> = {
   isHydrated: boolean;
 };
 
-/**
- * Tracks when a ref callback has attached to a DOM node.
- * Avoids passing refs to Motion's useScroll before hydration, which throws on fast mount/unmount.
- */
+// Motion's useScroll throws if it gets a ref before hydration.
 export const useHydratedRef = <T extends HTMLElement>(): UseHydratedRefResult<T> => {
   const ref = useRef<T | null>(null);
   const hasHydratedRef = useRef(false);

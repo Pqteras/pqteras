@@ -12,7 +12,6 @@ const COOLDOWN_COOKIE = "contact_cooldown";
 const COOLDOWN_MS = 5 * 60 * 1000;
 const MIN_FILL_MS = 3000;
 
-/** Strips CR/LF and other controls that could break email metadata. */
 const stripControlChars = (value: string) =>
   value.replace(/[\u0000-\u001F\u007F]/g, " ").replace(/\s+/g, " ").trim();
 
@@ -48,9 +47,6 @@ const ratelimit = new Ratelimit({
   prefix: "contact",
 });
 
-/**
- * Validates and sends a contact form message via Resend.
- */
 export const submitContactForm = async (
   _prevState: ContactFormState,
   formData: FormData,

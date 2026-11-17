@@ -1,62 +1,32 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import CopyEmailButton from "../components/CopyEmailButton/CopyEmailButton";
 import ContactForm from "../contact/ContactForm";
+import { fadeUp, stagger } from "../motion/tokens";
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: easeOut },
-  },
-};
-
-/**
- * Contact page layout with intro, email copy, and form.
- */
 const ContactLayout = () => {
+  const reduceMotion = useReducedMotion() ?? false;
+  const item = fadeUp(reduceMotion);
+
   return (
     <motion.div
-      variants={containerVariants}
+      variants={stagger(0.07, 0.05)}
       initial="hidden"
       animate="visible"
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-7 pt-2"
     >
-      <div>
-        <motion.p
-          variants={itemVariants}
-          className="mb-2 text-xs font-medium uppercase tracking-[0.24em] text-yellow-300/70"
-        >
-          Get in touch
-        </motion.p>
-        <motion.h2
-          variants={itemVariants}
-          className="text-2xl font-semibold tracking-tight text-white md:text-3xl"
-        >
+      <motion.div variants={item}>
+        <h2 className="text-2xl font-semibold tracking-[-0.02em] text-fg md:text-[28px]">
           Have a project in mind?
-        </motion.h2>
-        <motion.p
-          variants={itemVariants}
-          className="mt-2 text-sm leading-relaxed text-white/60"
-        >
+        </h2>
+        <p className="mt-2 text-[15px] leading-7 text-muted">
           Fill out the form below, or reach me directly at{" "}
           <CopyEmailButton variant="inline" />.
-        </motion.p>
-      </div>
+        </p>
+      </motion.div>
 
-      <ContactForm motionVariants={itemVariants} />
+      <ContactForm motionVariants={item} />
     </motion.div>
   );
 };

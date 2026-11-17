@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { KeyboardEvent } from "react";
-import { FaChevronRight, FaTimes } from "react-icons/fa";
+import { FiX } from "react-icons/fi";
 import ProjectIcon from "./ProjectIcon";
 import type { ProjectNavigatorProps } from "./types";
 import useMobileProjectTray from "./useMobileProjectTray";
@@ -44,12 +44,12 @@ const MobileProjectNavigator = ({
         aria-expanded={open}
         aria-controls="project-navigation-tray"
         aria-label="Open project navigator"
-        className="absolute -left-2 top-1/2 z-30 flex h-14 w-7 -translate-y-1/2 items-center justify-end rounded-r-2xl bg-[#242424]/95 pr-1.5 text-white/60 shadow-lg shadow-black/25 backdrop-blur-md md:hidden"
+        className="absolute -left-2 top-1/2 z-30 flex h-14 w-7 -translate-y-1/2 items-center justify-end rounded-r-2xl border border-l-0 border-line bg-raised pr-1.5 shadow-[0_12px_28px_-10px_rgb(0_0_0/0.7)] md:hidden"
       >
         <span className="flex flex-col items-end gap-1" aria-hidden="true">
-          <span className="h-0.5 w-2 rounded-full bg-white/30" />
-          <span className="h-0.5 w-4 rounded-full bg-yellow-300" />
-          <span className="h-0.5 w-2.5 rounded-full bg-white/30" />
+          <span className="h-0.5 w-2 rounded-full bg-fg/30" />
+          <span className="h-0.5 w-4 rounded-full bg-accent" />
+          <span className="h-0.5 w-2.5 rounded-full bg-fg/30" />
         </span>
       </button>
 
@@ -67,7 +67,7 @@ const MobileProjectNavigator = ({
               type="button"
               onClick={closeTray}
               aria-label="Close project navigator"
-              className="absolute inset-0 bg-black/58 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/50"
             />
             <motion.div
               ref={panelRef}
@@ -88,17 +88,17 @@ const MobileProjectNavigator = ({
                   ? { duration: 0 }
                   : { type: "spring", stiffness: 340, damping: 30, mass: 0.72 }
               }
-              className="absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1.5 top-2 flex w-[min(72vw,17rem)] flex-col overflow-hidden rounded-2xl bg-[#202020]/98 shadow-2xl shadow-black/50 backdrop-blur-xl"
+              className="absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1.5 top-2 flex w-[min(72vw,17rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-20px_rgb(0_0_0/0.85)]"
             >
               <div className="flex items-center justify-between px-4 pb-2 pt-3.5">
                 <div>
                   <p
                     id="project-navigation-title"
-                    className="text-sm font-semibold text-white"
+                    className="text-sm font-semibold text-fg"
                   >
                     Projects
                   </p>
-                  <p className="mt-0.5 text-[11px] text-white/38">
+                  <p className="mt-0.5 text-xs text-faint">
                     Jump to a project
                   </p>
                 </div>
@@ -106,9 +106,9 @@ const MobileProjectNavigator = ({
                   type="button"
                   onClick={closeTray}
                   aria-label="Close project navigator"
-                  className="grid h-10 w-10 place-items-center rounded-full bg-white/4 text-white/55 transition-colors hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-300"
+                  className="grid size-10 place-items-center rounded-full text-muted transition-colors duration-150 hover:bg-raised hover:text-fg"
                 >
-                  <FaTimes size={14} />
+                  <FiX size={18} aria-hidden="true" />
                 </button>
               </div>
 
@@ -132,27 +132,22 @@ const MobileProjectNavigator = ({
                         closeTray();
                         onSelect(item.id);
                       }}
-                      className={`mb-1 flex min-h-14 w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left outline-none transition-colors last:mb-0 focus-visible:ring-2 focus-visible:ring-yellow-300/70 ${
+                      className={`mb-0.5 flex min-h-12 w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left outline-none transition-colors duration-150 last:mb-0 focus-visible:ring-2 focus-visible:ring-accent/70 ${
                         active
-                          ? "bg-yellow-300/9 text-white"
-                          : "text-white/62 hover:bg-white/5 hover:text-white"
+                          ? "bg-raised text-fg"
+                          : "text-muted hover:bg-raised/60 hover:text-fg"
                       }`}
                     >
                       <ProjectIcon item={item} size="medium" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium">
-                          {item.name}
-                        </span>
-                        <span className="mt-0.5 block text-[10px] tabular-nums text-white/30">
-                          {String(index + 1).padStart(2, "0")} /{" "}
-                          {String(items.length).padStart(2, "0")}
-                        </span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {item.name}
                       </span>
-                      <FaChevronRight
-                        size={10}
-                        className={active ? "text-yellow-300" : "text-white/20"}
-                        aria-hidden="true"
-                      />
+                      {active && (
+                        <span
+                          className="size-1.5 shrink-0 rounded-full bg-accent"
+                          aria-hidden="true"
+                        />
+                      )}
                     </button>
                   );
                 })}

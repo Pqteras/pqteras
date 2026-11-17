@@ -11,9 +11,6 @@ const sharedOptions: ToastOptions = {
   duration: TOAST_DURATION_MS,
 };
 
-/**
- * Tracks active toasts and dismisses the oldest when the limit is exceeded.
- */
 const registerToast = (id: string) => {
   activeToastIds.push(id);
 
@@ -28,18 +25,12 @@ const registerToast = (id: string) => {
   }, TOAST_DURATION_MS + 300);
 };
 
-/**
- * Shows an error toast styled for the portfolio UI.
- */
 export const showErrorToast = (message: string) => {
   const id = toast.error(message, sharedOptions);
 
   registerToast(id);
 };
 
-/**
- * Shows a success toast styled for the portfolio UI.
- */
 export const showSuccessToast = (message: string) => {
   const id = toast.success(message, sharedOptions);
 

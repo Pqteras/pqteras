@@ -1,14 +1,13 @@
 "use client";
 
-import { motion, Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import Links from "@/app/components/Links/Links";
+import { ease, fadeUp, stagger } from "@/app/motion/tokens";
 import { getAge } from "@/app/utils/helpers";
-import { FaCode, FaGraduationCap } from "react-icons/fa";
-import { FaDumbbell } from "react-icons/fa6";
 
 const sections = [
   {
-    icon: FaGraduationCap,
+    id: "about",
     title: "About Me",
     content: (
       <>
@@ -23,7 +22,7 @@ const sections = [
     ),
   },
   {
-    icon: FaDumbbell,
+    id: "hobbies",
     title: "Hobbies",
     content: (
       <>
@@ -36,7 +35,7 @@ const sections = [
     ),
   },
   {
-    icon: FaCode,
+    id: "knowledge",
     title: "Knowledge",
     content: (
       <>
@@ -58,93 +57,54 @@ const sections = [
   },
 ];
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
+const getRuleVariants = (reduceMotion: boolean): Variants => ({
+  hidden: reduceMotion ? { opacity: 0 } : { scaleX: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
+    scaleX: 1,
+    transition: { duration: 0.9, ease: ease.out },
   },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16, scale: 0.97 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: easeOut,
-    },
-  },
-};
-
-const iconVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.7, y: 8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: {
-      duration: 0.34,
-      ease: easeOut,
-    },
-  },
-};
-
-const descriptionVariants: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.42,
-      ease: easeOut,
-    },
-  },
-};
+});
 
 const HomeLayout = () => {
+  const reduceMotion = useReducedMotion() ?? false;
+  const text = fadeUp(reduceMotion);
+  const rule = getRuleVariants(reduceMotion);
+
   return (
     <motion.div
-      variants={containerVariants}
+      variants={stagger(0.1, 0.1)}
       initial="hidden"
       animate="visible"
-      className="flex flex-col mt-2"
+      className="flex flex-col"
     >
-      {sections.map((section, index) => (
-        <motion.div
-          key={section.title}
-          variants={itemVariants}
-          className="group relative flex gap-4 pb-6 last:pb-0 will-change-transform"
+      {sections.map((section) => (
+        <motion.section
+          key={section.id}
+          variants={stagger(0.05)}
+          aria-labelledby={`${section.id}-heading`}
+          className="group grid gap-x-8 gap-y-2 py-5 first:pt-3 last:pb-0 sm:grid-cols-[7.5rem_minmax(0,1fr)]"
         >
-          <div className="flex w-9 shrink-0 flex-col items-center pt-0.5">
-            <motion.div variants={iconVariants}>
-              <section.icon className="text-lg text-yellow-300/90 transition-colors duration-300 group-hover:text-yellow-300" />
-            </motion.div>
-            {index < sections.length - 1 && (
-              <span
-                className="mt-3 w-px flex-1 bg-linear-to-b from-yellow-300/30 to-transparent"
-                aria-hidden="true"
-              />
-            )}
-          </div>
-          <div className="pb-2">
-            <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-[0.15em] text-yellow-300">
-              {section.title}
-            </h3>
-            <motion.p
-              variants={descriptionVariants}
-              className="text-white/70 leading-relaxed text-sm text-justify"
+          <motion.div variants={text}>
+            <h2
+              id={`${section.id}-heading`}
+              className="text-[15px] font-semibold leading-7 text-accent"
             >
-              {section.content}
-            </motion.p>
-          </div>
-        </motion.div>
+              {section.title}
+            </h2>
+            <motion.span
+              variants={rule}
+              className="mt-1.5 block h-0.5 w-6 origin-left rounded-full bg-accent/70 transition-[width,background-color] duration-500 ease-out-expo group-hover:w-12 group-hover:bg-accent motion-reduce:transition-none"
+              aria-hidden="true"
+            />
+          </motion.div>
+          <motion.p
+            variants={text}
+            className="text-[15px] leading-7 text-fg/72"
+          >
+            {section.content}
+          </motion.p>
+        </motion.section>
       ))}
     </motion.div>
   );

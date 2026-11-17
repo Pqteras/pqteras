@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { ReactLenis } from "lenis/react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -18,6 +18,7 @@ import Tabs from "../Tabs/Tabs";
 import { useAppViewport } from "../../hooks/useAppViewport";
 import { useCursorGlow } from "../../hooks/useCursorGlow";
 import { createHomeMotion } from "../../motion/homeMotion";
+import { duration, ease, spring } from "../../motion/tokens";
 
 const PortfolioOverlayContext = createContext<(open: boolean) => void>(
   () => {},
@@ -39,7 +40,10 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
   const { isVisible, springX, springY } = useCursorGlow({
     enabled: !overlayOpen,
   });
-  const motionConfig = createHomeMotion(reduceMotion);
+  const motionConfig = useMemo(
+    () => createHomeMotion(reduceMotion),
+    [reduceMotion],
+  );
   const expanded = isWork || isExpandingToWork;
   useAppViewport(expanded);
 
@@ -49,7 +53,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
     if (!isWork) {
       const navigationTimer = window.setTimeout(
         () => router.push("/work", { scroll: false }),
-        reduceMotion ? 80 : 520,
+        reduceMotion ? 80 : 480,
       );
 
       return () => window.clearTimeout(navigationTimer);
@@ -57,7 +61,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
 
     const revealTimer = window.setTimeout(
       () => setIsExpandingToWork(false),
-      reduceMotion ? 20 : 300,
+      reduceMotion ? 20 : 280,
     );
 
     return () => window.clearTimeout(revealTimer);
@@ -88,16 +92,7 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
     setIsExpandingToWork(true);
   };
 
-  const subtitleWords = useMemo(() => "Full-Stack Developer".split(" "), []);
-
-  const shellTransition = reduceMotion
-    ? { duration: 0.18 }
-    : {
-        type: "spring" as const,
-        stiffness: 150,
-        damping: 24,
-        mass: 0.85,
-      };
+  const shellTransition = reduceMotion ? { duration: 0.18 } : spring.layout;
 
   return (
     <ReactLenis
@@ -111,38 +106,14 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
       }}
     >
       <PortfolioOverlayContext.Provider value={setOverlayOpen}>
-        <AnimatePresence>
-          {!overlayOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isVisible ? 1 : 0 }}
-                exit={{ opacity: 0 }}
-                className="pointer-events-none fixed z-1 hidden h-140 w-140 rounded-full bg-[radial-gradient(circle,rgba(253,224,71,0.14)_0%,rgba(253,224,71,0.05)_35%,transparent_65%)] md:block"
-                style={{
-                  left: springX,
-                  top: springY,
-                  x: "-50%",
-                  y: "-50%",
-                }}
-                aria-hidden="true"
-              />
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isVisible ? 1 : 0 }}
-                exit={{ opacity: 0 }}
-                className="pointer-events-none fixed z-50 hidden h-3 w-3 rounded-full bg-yellow-300/50 shadow-lg shadow-yellow-300/30 md:block"
-                style={{
-                  left: springX,
-                  top: springY,
-                  x: "-50%",
-                  y: "-50%",
-                }}
-                aria-hidden="true"
-              />
-            </>
-          )}
-        </AnimatePresence>
+        <motion.div
+          initial={false}
+          animate={{ opacity: isVisible ? 1 : 0 }}
+          transition={{ duration: 0.4 }}
+          className="pointer-events-none fixed left-0 top-0 z-1 -ml-80 -mt-80 hidden size-160 rounded-full bg-[radial-gradient(circle,rgb(253_224_71/0.09)_0%,rgb(253_224_71/0.035)_32%,transparent_62%)] will-change-transform md:block"
+          style={{ x: springX, y: springY }}
+          aria-hidden="true"
+        />
 
         <div
           className={`relative z-10 flex min-h-(--app-viewport-height) items-center justify-center ${
@@ -151,95 +122,77 @@ const PortfolioShell = ({ children }: PortfolioShellProps) => {
         >
           <motion.section
             layout
-            initial={{ borderRadius: expanded ? 0 : 12 }}
-            animate={{ borderRadius: expanded ? 0 : 12 }}
+            layoutDependency={expanded}
+            initial={{ borderRadius: expanded ? 0 : 16 }}
+            animate={{ borderRadius: expanded ? 0 : 16 }}
             transition={shellTransition}
-            className={`relative flex w-full flex-col overflow-hidden border border-white/5 bg-surface shadow-lg shadow-yellow-400/5 ${
+            className={`relative flex w-full flex-col overflow-hidden border border-line bg-surface shadow-[0_32px_64px_-32px_rgb(0_0_0/0.7)] ${
               expanded ? "h-(--app-viewport-height) max-w-none" : "max-w-2xl"
             }`}
           >
             <motion.header
               layout="position"
+              layoutDependency={expanded}
               className={`shrink-0 ${
                 expanded
                   ? "px-5 py-4 md:px-8 md:py-5"
-                  : "p-5 pb-4 md:p-6 md:pb-4"
+                  : "p-5 pb-4 md:p-7 md:pb-5"
               }`}
             >
               <motion.div
                 variants={motionConfig.row}
                 initial="hidden"
                 animate="visible"
-                className="flex items-center justify-between gap-3"
+                className="border-b border-line pb-4"
               >
-                <div>
-                  <p className="mb-1 text-sm text-white/50">Hello, I&apos;m</p>
-                  <h1 className="text-3xl font-bold leading-none text-white md:text-4xl">
-                    <GlitchNameHeading
-                      primaryName="Theocharis"
-                      altName="Pqteras"
-                      motionConfig={motionConfig}
-                      reduceMotion={reduceMotion}
-                    />
-                  </h1>
+                <div className="flex items-stretch justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="mb-1.5 text-sm text-muted">Hello, I&apos;m</p>
+                    <h1 className="text-3xl font-bold leading-none tracking-[-0.02em] md:text-4xl">
+                      <GlitchNameHeading
+                        primaryName="Theocharis"
+                        altName="Pqteras"
+                        motionConfig={motionConfig}
+                        reduceMotion={reduceMotion}
+                      />
+                    </h1>
+                    <p className="mt-2 text-sm text-muted">Full-Stack Developer</p>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end justify-between gap-3">
+                    <Status />
+                    <SocialIcons className="-mb-2 -mr-2 hidden sm:flex" />
+                  </div>
                 </div>
-                <Status />
-              </motion.div>
-
-              <motion.div
-                variants={motionConfig.row}
-                initial="hidden"
-                animate="visible"
-                className="flex flex-col items-start justify-between gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-center"
-              >
-                <motion.p
-                  variants={motionConfig.subtitleContainer}
-                  initial="hidden"
-                  animate="visible"
-                  className="flex flex-wrap gap-x-1 text-sm text-white/60"
-                >
-                  {subtitleWords.map((word, index) => (
-                    <motion.span
-                      key={`${word}-${index}`}
-                      variants={motionConfig.subtitleWord}
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
-                </motion.p>
-                <SocialIcons />
+                <SocialIcons className="-mx-2 mt-3 flex sm:hidden" />
               </motion.div>
             </motion.header>
 
-            <AnimatePresence mode="wait">
-              <motion.main
-                key={pathname}
-                initial={
-                  reduceMotion
-                    ? { opacity: 0 }
-                    : { opacity: 0, y: isWork ? 18 : -10 }
-                }
-                animate={
-                  isExpandingToWork
-                    ? { opacity: 0, y: -10 }
-                    : { opacity: 1, y: 0 }
-                }
-                exit={
-                  reduceMotion
-                    ? { opacity: 0 }
-                    : { opacity: 0, y: isWork ? -12 : 10 }
-                }
-                transition={{
-                  duration: reduceMotion ? 0.12 : isWork ? 0.38 : 0.28,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className={
-                  isWork ? "min-h-0 flex-1" : "px-5 pb-5 md:px-6 md:pb-6"
-                }
-              >
-                {children}
-              </motion.main>
-            </AnimatePresence>
+            <motion.main
+              key={pathname}
+              initial={
+                reduceMotion
+                  ? { opacity: 0 }
+                  : { opacity: 0, y: isWork ? 12 : 6 }
+              }
+              animate={
+                isExpandingToWork
+                  ? { opacity: 0, y: reduceMotion ? 0 : -6 }
+                  : { opacity: 1, y: 0 }
+              }
+              transition={{
+                duration: reduceMotion
+                  ? duration.fast
+                  : isWork
+                    ? 0.4
+                    : duration.base,
+                ease: ease.out,
+              }}
+              className={
+                isWork ? "min-h-0 flex-1" : "px-5 pb-6 pt-1 md:px-7 md:pb-7"
+              }
+            >
+              {children}
+            </motion.main>
           </motion.section>
         </div>
 

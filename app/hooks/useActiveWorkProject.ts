@@ -9,9 +9,6 @@ type UseActiveWorkProjectOptions = {
   onActiveChange: (id: WorkItemId | null) => void;
 };
 
-/**
- * Tracks the active work project at the scroll container midpoint via IntersectionObserver.
- */
 export const useActiveWorkProject = ({
   scrollContainer,
   isReady,

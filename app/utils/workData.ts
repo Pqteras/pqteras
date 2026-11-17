@@ -30,16 +30,10 @@ type WorkItemBase = {
   repository?: string;
 };
 
-/**
- * Authoring shape: point at a public folder; images are resolved server-side.
- */
 export type WorkItemSource = WorkItemBase & {
   screenshotFolder?: string;
 };
 
-/**
- * Consumer shape used by the work UI after screenshots are resolved.
- */
 export type WorkItem = WorkItemBase & {
   screenshots?: string[];
 };
@@ -50,6 +44,15 @@ export const getWorkLogoClassName = (logoClassName?: string) =>
   logoClassName
     ? `${WORK_LOGO_BASE_CLASS} ${logoClassName}`
     : WORK_LOGO_BASE_CLASS;
+
+export const getInitials = (name: string) =>
+  name
+    .split(/\s|\./)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 
 const technology = {
   javascript: {
@@ -194,11 +197,12 @@ const workItemsById = {
     name: "My Brew",
     description:
       "Showcase-only digital menu experience for a coffee bar, built for in-store QR scans. Guests land on a branded hero, then browse the full menu with smooth motion and bilingual support. This is a design and engineering portfolio piece, not the coffee bar's official website.",
-    accent: "text-amber-300",
+    accent:
+      "rounded-lg bg-[#1e5957] px-2.5 pb-1 pt-0.5 text-[#f1f7f6] box-decoration-clone",
     logo: "/project-logos/my-brew-logo.jpg",
     logoClassName: "rounded-sm",
     screenshotFolder: "/projects/mybrew",
-    website: "https://my-brew-coffee.vercel.app/",
+    website: "https://mbre.cc",
     technologies: [
       technology.next,
       technology.typescript,
@@ -251,9 +255,6 @@ const workItemsById = {
   },
 } satisfies Record<WorkItemId, WorkItemSource>;
 
-/**
- * Ordered work item sources before screenshot folders are resolved.
- */
 export const workItemSources: WorkItemSource[] = WORK_ITEM_ORDER.map(
   (id) => workItemsById[id],
 );

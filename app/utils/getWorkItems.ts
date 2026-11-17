@@ -6,9 +6,6 @@ import {
 } from "./workData";
 import { resolveScreenshotFolder } from "./resolveScreenshotFolder";
 
-/**
- * Builds work items with screenshots resolved from each project's folder.
- */
 export const getWorkItems = (): WorkItem[] =>
   workItemSources.map(({ screenshotFolder, ...item }) => {
     if (!screenshotFolder) {

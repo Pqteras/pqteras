@@ -1,6 +1,9 @@
 import Image from "next/image";
-import { getWorkLogoClassName, type WorkItem } from "../../../utils/workData";
-import { getInitials } from "./utils";
+import {
+  getInitials,
+  getWorkLogoClassName,
+  type WorkItem,
+} from "../../../utils/workData";
 
 type ProjectIconProps = {
   item: WorkItem;
@@ -24,7 +27,7 @@ const ProjectIcon = ({ item, size = "small" }: ProjectIconProps) => {
           className={getWorkLogoClassName(item.logoClassName)}
         />
       ) : (
-        <span className="text-[10px] font-semibold tracking-tight text-yellow-300">
+        <span className="text-[10px] font-semibold tracking-tight text-fg/80">
           {getInitials(item.name)}
         </span>
       )}
